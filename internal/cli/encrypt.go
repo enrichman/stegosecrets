@@ -44,5 +44,5 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return encrypter.Encrypt(bytes.NewReader(toEncrypt))
+	return encrypter.Encrypt(bytes.NewReader(toEncrypt), cleartextFile)
 }

@@ -23,14 +23,20 @@ For example, having 5 `parts` with a `threshold` of 3 will split the `master-key
 
 ## Usage
 
+### encrypt
+
+To encrypt a file:
 
 ```
-stego encrypt --file mysecret.txt --parts 5 --threshold 3
+stego encrypt -f mysecret.txt -p 5 -t 3
+```
 
+This will generate 
 # out
-mysecret.txt.enc
-mysecret.txt.key
 mysecret.txt.checksum
+mysecret.txt.enc
+mysecret.txt.enc.checksum
+mysecret.txt.key
 
 1.jpg
 1.jpg.checksum
@@ -45,25 +51,37 @@ mysecret.txt.checksum
 ```
 
 Main files:
-- `file.txt.enc` the encrypted file
-- `file.txt.key` the master key used to encrypt/decrypt the secret
-- `file.txt.checksum` the sha256 checksum of the `file.txt.enc`
+- `mysecret.txt.checksum` is the sha256 checksum of the `mysecret.txt` file (used to check a successful decryption)
+- `mysecret.txt.enc` is the encrypted file
+- `mysecret.txt.enc.checksum` is the sha256 checksum of the `mysecret.txt`
+- `mysecret.txt.key` is the master key used to encrypt/decrypt the secret
 
 Partial files:
 - `n.key` the `n` partial key
-- `n.jpg` the `n` image where the partial key is hidden
-- `n.jpg.checksum` the sha256 checksum of the `n.jpg` image
+- `n.jpg` the `n` image where the `n` partial key is hidden
+- `n.jpg.checksum` is the sha256 checksum of the `n.jpg` image
 
-Either a partial key or an image can be provided to the `decrypt` command.
+**Note*:* If no parts are specified the `master-key` will not be splitted. Keep it safely stored, or delete it.  
 
-```
-stego decrypt --file file.txt.enc --key 1.key --key 2.key --img 3.jpg
-```
 
-**Note*:* If no parts are specified the `master-key` will not be splitted. Keep it safely stored, or delete it.
+Checksums can be used to check the integrity of the files:
 
 ```
-stego decrypt --file file.txt.enc --master-key file.key -k/--key -i/--img
+-> % sha256sum --check mysecret.txt.enc.checksum
+mysecret.txt.enc: OK
+```
+
+### Decrypt
+
+To decrypt a file just use enough keys and/or images
+
+```
+stego decrypt --file mysecret.txt.enc --key 1.key --key 2.key --img 3.jpg
+```
+
+also the master key alone can be used to decrypt the file
+```
+stego decrypt --file mysecret.txt.enc --master-key mysecret.txt.key
 ```
 
 
@@ -72,7 +90,7 @@ stego decrypt --file file.txt.enc --master-key file.key -k/--key -i/--img
 To hide the partial keys with steganography you will need a folder with some images. To get some random images the `images` command can be used. It will get some random images from https://picsum.photos/ and it will store them in a `images` folder:
 
 ```
-stego images -n 10
+stego images
 ```
 
 ---
@@ -84,24 +102,3 @@ stego encrypt -f/--file file.txt -p/--parts -t/--threshold -o/--output
 stego decrypt -f/--file file.aes --master-key file.key -k/--key -i/--img
 # if no file is provided the it will get the message from the images/keys
 ```
-
-
-```
-# out/file_20220102_230313
-file
-file.checksum // clear data checksum
-file.aes // encrypted data
-file.aes.checksum // encrypted data checksum
-file.key // Base64 encoded master key
-// Base64 Partial keys
-file.1.key
-file.2.key
-file.3.key
-image.1.jpg
-image.1.jpg.checksum
-image.2.jpg.checksum
-image.3.jpg.checksum
-```
-
-
-cat 0.jpg.checksum | sha256sum --check

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -57,74 +56,142 @@ func EncryptFile(filename string) {
 
 }
 
-func (e *Encrypter) Encrypt(reader io.Reader) error {
-	masterKey, err := sss.GenerateMasterKey()
-	if err != nil {
-		return err
-	}
-	file.WriteKey(masterKey, "out/file.aes")
-
-	message, err := io.ReadAll(reader)
-	if err != nil {
-		return err
-	}
-	encryptedMessage, err := sss.Encrypt(masterKey, message)
+func (e *Encrypter) Encrypt(reader io.Reader, filename string) error {
+	masterKey, err := e.generateAndSaveMasterKey(filename)
 	if err != nil {
 		return err
 	}
 
-	file.WriteFile(encryptedMessage, "out/file.aes")
-	file.WriteChecksum(encryptedMessage, "out/file.aes")
+	err = e.encryptAndSaveMessage(masterKey, reader, filename)
+	if err != nil {
+		return err
+	}
 
 	if e.Parts > 1 {
-		parts, err := sss.Split(masterKey, e.Parts, e.Threshold)
+		err = e.splitAndSaveKey(masterKey)
 		if err != nil {
 			return err
 		}
-		return encodePartsInImages(parts)
 	}
 
 	return nil
 }
 
-func encodePartsInImages(parts []sss.Part) error {
+func (e *Encrypter) generateAndSaveMasterKey(filename string) ([]byte, error) {
+	masterKey, err := sss.GenerateMasterKey()
+	if err != nil {
+		return nil, err
+	}
+
+	err = file.WriteKey(masterKey, "out/"+filename)
+	if err != nil {
+		return nil, err
+	}
+
+	return masterKey, nil
+}
+
+func (e *Encrypter) encryptAndSaveMessage(masterKey []byte, reader io.Reader, filename string) error {
+	message, err := io.ReadAll(reader)
+	if err != nil {
+		return err
+	}
+
+	err = file.WriteChecksum(message, "out/"+filename)
+	if err != nil {
+		return err
+	}
+
+	encryptedMessage, err := sss.Encrypt(masterKey, message)
+	if err != nil {
+		return err
+	}
+
+	err = file.WriteFile(encryptedMessage, fmt.Sprintf("out/%s.enc", filename))
+	if err != nil {
+		return err
+	}
+
+	err = file.WriteChecksum(encryptedMessage, fmt.Sprintf("out/%s.enc", filename))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (e *Encrypter) splitAndSaveKey(masterKey []byte) error {
+	parts, err := sss.Split(masterKey, e.Parts, e.Threshold)
+	if err != nil {
+		return err
+	}
+
+	images, err := e.getImages(len(parts))
+	if err != nil {
+		return err
+	}
+
+	err = e.saveKeysIntoImages(parts, images)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (e *Encrypter) getImages(count int) ([]string, error) {
 	dir := "images"
-	// get images
+
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		return err
-	}
-	path, err := filepath.Abs(dir)
-	if err != nil {
-		return err
+		return nil, err
 	}
 
-	images := []fs.DirEntry{}
-	for _, f := range files {
-		switch filepath.Ext(f.Name()) {
+	images := make([]string, 0, count)
+
+	for _, file := range files {
+		switch filepath.Ext(file.Name()) {
 		case ".jpg", ".jpeg", ".png":
-			images = append(images, f)
-			fmt.Printf(" -  %s\n", f.Name())
+			images = append(images, filepath.Join(dir, file.Name()))
+		}
+		if len(images) >= count {
+			break
 		}
 	}
-	fmt.Printf("found %d images\n", len(images))
 
-	// TODO if parts > len(images) add same image
+	// TODO we can improve this
+	lenImages := len(images)
+	for lenImages < count {
+		images = append(images, images...)
+		lenImages = len(images)
+	}
 
-	fmt.Println("Encrypted parts:")
+	return images[:count], nil
+}
 
+func (e *Encrypter) saveKeysIntoImages(parts []sss.Part, images []string) error {
 	for i, part := range parts {
-		fmt.Printf(" %d) %s\n", i, part.Base64())
+		partialKeyFilename := fmt.Sprintf("out/%d", i+1)
 
-		outName := fmt.Sprintf("out/%d", i)
-		if len(images) > 0 {
-			imagePath := filepath.Join(path, images[i].Name())
-			outName = fmt.Sprintf("%s%s", outName, filepath.Ext(images[i].Name()))
-			image.EncodeSecretFromFile(part.Bytes(), imagePath, outName)
-			file.WriteFileChecksum(outName)
+		// write .key file
+		err := file.WriteKey(part.Bytes(), partialKeyFilename)
+		if err != nil {
+			return err
 		}
 
-		file.WriteKey(part.Bytes(), outName)
+		// if the images are available hide the key inside them
+		if len(images) > 0 {
+			imageOutName := fmt.Sprintf("%s%s", partialKeyFilename, filepath.Ext(images[i]))
+
+			err := image.EncodeSecretFromFile(part.Bytes(), images[i], imageOutName)
+			if err != nil {
+				return err
+			}
+
+			err = file.WriteFileChecksum(imageOutName)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil

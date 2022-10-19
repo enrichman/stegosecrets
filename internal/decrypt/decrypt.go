@@ -1,6 +1,8 @@
 package decrypt
 
 import (
+	"strings"
+
 	"github.com/enrichman/stegosecrets/pkg/file"
 	sss "github.com/enrichman/stegosecrets/pkg/stego"
 )
@@ -76,7 +78,7 @@ func WithPartialKeyImageFile(filename string) OptFunc {
 	}
 }
 
-func (d *Decrypter) Decrypt(content []byte) error {
+func (d *Decrypter) Decrypt(content []byte, filename string) error {
 
 	var key []byte
 	var err error
@@ -96,5 +98,5 @@ func (d *Decrypter) Decrypt(content []byte) error {
 	}
 
 	// TODO check checksum
-	return file.WriteFile(cleartext, "out/clear.txt")
+	return file.WriteFile(cleartext, strings.TrimSuffix(filename, ".enc"))
 }

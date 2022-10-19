@@ -39,7 +39,7 @@ func runDecryptCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return decrypter.Decrypt(encryptedBytes)
+	return decrypter.Decrypt(encryptedBytes, encryptedFile)
 }
 
 func buildDecrypter() (*decrypt.Decrypter, error) {
