@@ -1,9 +1,12 @@
+
 # StegoSecretS
 
-StegoSecretS combines AES-256 encryption, Shamir's Secret Sharing (SSS) and steganography!
+StegoSecretS combines [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) encryption, [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing) and [steganography](https://en.wikipedia.org/wiki/Steganography)!
 
-It helps you sharing secrets among other peers, keeping a minimum threshold of keys to decrypt the original secret.
-The partial keys can also be hidden inside images, adding an additional layer of "security".
+It helps you splitting a secret among other peers, keeping a minimum threshold of keys to recover the original one.
+The partial keys can be also be inside images, adding an additional layer of "security".
+
+***Note:** the project is under active development. The APIs are subject to change!*
 
 ## How does it work?
 
@@ -12,18 +15,23 @@ A `t` threshold of partial keys is needed to recover the original key, and decry
 
 ![IMG](doc/assets/stego1.png)
 
-For example, having 5 `parts` with a `threshold` of 3 will split the `master-key` in 5 pieces. These pieces will be also hidden inside 5 images. To reconstruct the original master key at least 3 partial keys and/or images are needed.
+For example, having 5 `parts` with a `threshold` of 3 will split the `master-key` in 5 pieces. These pieces could be also hidden into 5 images. To reconstruct the original master key at least 3 partial keys and/or images are needed.
 
 ![IMG](doc/assets/stego4.png)
 
 
+
+## Usage
+
+
 ```
-stego encrypt --file file.txt --parts 5 --threshold 3
+stego encrypt --file mysecret.txt --parts 5 --threshold 3
 
 # out
-file.txt.enc
-file.txt.key
-file.txt.checksum
+mysecret.txt.enc
+mysecret.txt.key
+mysecret.txt.checksum
+
 1.jpg
 1.jpg.checksum
 1.key
@@ -31,6 +39,9 @@ file.txt.checksum
 2.jpg.checksum
 2.key
 ...
+5.jpg
+5.jpg.checksum
+5.key
 ```
 
 Main files:
@@ -49,15 +60,12 @@ Either a partial key or an image can be provided to the `decrypt` command.
 stego decrypt --file file.txt.enc --key 1.key --key 2.key --img 3.jpg
 ```
 
-### Master key
+**Note*:* If no parts are specified the `master-key` will not be splitted. Keep it safely stored, or delete it.
 
 ```
 stego decrypt --file file.txt.enc --master-key file.key -k/--key -i/--img
 ```
 
-## Usage
-
-**Note*:* If no parts are specified the `master-key` will not be splitted. Keep it safely stored, or delete it.
 
 ### Images
 
@@ -66,6 +74,8 @@ To hide the partial keys with steganography you will need a folder with some ima
 ```
 stego images -n 10
 ```
+
+---
 
 ```
 stego encrypt -f/--file file.txt -p/--parts -t/--threshold -o/--output
