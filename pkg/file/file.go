@@ -9,66 +9,71 @@ import (
 	"path/filepath"
 )
 
-func WriteFileChecksum(filename string) {
+func WriteFileChecksum(filename string) error {
 	fileInput, err := os.Open(filename)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer fileInput.Close()
 
 	content, err := io.ReadAll(fileInput)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	WriteChecksum(content, filename)
+	return WriteChecksum(content, filename)
 }
 
-func WriteChecksum(content []byte, filename string) {
+func WriteChecksum(content []byte, filename string) error {
 	h := sha256.New()
-	h.Write(content)
+	_, err := h.Write(content)
+	if err != nil {
+		return err
+	}
 	checksum := fmt.Sprintf("%x\t%s", h.Sum(nil), filepath.Base(filename))
 
-	WriteFile([]byte(checksum), fmt.Sprintf("%s.checksum", filename))
+	return WriteFile([]byte(checksum), fmt.Sprintf("%s.checksum", filename))
 }
 
-func WriteKey(key []byte, filename string) {
+func WriteKey(key []byte, filename string) error {
 	base64EncodedKey := base64.StdEncoding.EncodeToString(key)
-	WriteFile([]byte(base64EncodedKey), fmt.Sprintf("%s.key", filename))
+	return WriteFile([]byte(base64EncodedKey), fmt.Sprintf("%s.key", filename))
 }
 
-func WriteFile(content []byte, filename string) {
+func WriteFile(content []byte, filename string) error {
 	f, err := os.Create(filename)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer f.Close()
 
 	_, err = f.Write(content)
-	if err != nil {
-		panic(err)
-	}
+	return err
 }
 
-func ReadFile(filename string) []byte {
+func ReadFile(filename string) ([]byte, error) {
 	file, err := os.Open(filename)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer file.Close()
 
 	bb, err := io.ReadAll(file)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return bb
+	return bb, nil
 }
 
-func ReadKey(filename string) []byte {
-	encodedKey := ReadFile(filename)
+func ReadKey(filename string) ([]byte, error) {
+	encodedKey, err := ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
 	decodedKey, err := base64.StdEncoding.DecodeString(string(encodedKey))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return decodedKey
+	return decodedKey, nil
 }

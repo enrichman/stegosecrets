@@ -21,20 +21,20 @@ func EncryptFile(filename string) {
 
 }
 
-func (e *Encrypter) Encrypt(reader io.Reader) {
+func (e *Encrypter) Encrypt(reader io.Reader) error {
 	masterKey, err := sss.GenerateMasterKey()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	file.WriteKey(masterKey, "out/file.aes")
 
 	message, err := io.ReadAll(reader)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	encryptedMessage, err := sss.Encrypt(masterKey, message)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	file.WriteFile(encryptedMessage, "out/file.aes")
@@ -43,36 +43,38 @@ func (e *Encrypter) Encrypt(reader io.Reader) {
 	if e.Parts > 1 {
 		parts, err := sss.Split(masterKey, e.Parts, e.Threshold)
 		if err != nil {
-			panic(err)
+			return err
 		}
-		encodePartsInImages(parts)
+		return encodePartsInImages(parts)
 	}
+
+	return nil
 }
 
-func encodePartsInImages(parts []sss.Part) {
+func encodePartsInImages(parts []sss.Part) error {
 	dir := "images"
 	// get images
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	path, err := filepath.Abs(dir)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	fmt.Printf("found %d images\n", len(files))
 
-	filtered := []fs.DirEntry{}
+	images := []fs.DirEntry{}
 	for _, f := range files {
 		switch filepath.Ext(f.Name()) {
 		case ".jpg", ".jpeg", ".png":
-			filtered = append(filtered, f)
+			images = append(images, f)
 			fmt.Printf(" -  %s\n", f.Name())
 		}
 	}
 
-	// TODO if parts > len(filtered) add same image
+	// TODO if parts > len(images) add same image
 
 	fmt.Println("Encrypted parts:")
 
@@ -80,13 +82,15 @@ func encodePartsInImages(parts []sss.Part) {
 		fmt.Printf(" %d) %s\n", i, part.Base64())
 
 		outName := fmt.Sprintf("out/%d", i)
-		if len(files) > 0 {
-			imagePath := filepath.Join(path, files[i].Name())
-			outName = fmt.Sprintf("%s%s", outName, filepath.Ext(files[i].Name()))
+		if len(images) > 0 {
+			imagePath := filepath.Join(path, images[i].Name())
+			outName = fmt.Sprintf("%s%s", outName, filepath.Ext(images[i].Name()))
 			image.EncodeSecretFromFile(part.Bytes(), imagePath, outName)
 			file.WriteFileChecksum(outName)
 		}
 
 		file.WriteKey(part.Bytes(), outName)
 	}
+
+	return nil
 }
