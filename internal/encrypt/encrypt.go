@@ -1,6 +1,7 @@
 package encrypt
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -15,6 +16,41 @@ import (
 type Encrypter struct {
 	Parts     int
 	Threshold int
+}
+
+type OptFunc func(*Encrypter) error
+
+func NewEncrypter(opts ...OptFunc) (*Encrypter, error) {
+	encrypter := &Encrypter{}
+
+	for _, opt := range opts {
+		err := opt(encrypter)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return encrypter, nil
+}
+
+func WithParts(parts int) OptFunc {
+	return func(e *Encrypter) error {
+		if parts < 0 || parts > 256 {
+			return errors.New("invalid parts")
+		}
+		e.Parts = parts
+		return nil
+	}
+}
+
+func WithThreshold(threshold int) OptFunc {
+	return func(e *Encrypter) error {
+		if threshold < 0 || threshold > 256 {
+			return errors.New("invalid threshold")
+		}
+		e.Threshold = threshold
+		return nil
+	}
 }
 
 func EncryptFile(filename string) {
@@ -63,8 +99,6 @@ func encodePartsInImages(parts []sss.Part) error {
 		return err
 	}
 
-	fmt.Printf("found %d images\n", len(files))
-
 	images := []fs.DirEntry{}
 	for _, f := range files {
 		switch filepath.Ext(f.Name()) {
@@ -73,6 +107,7 @@ func encodePartsInImages(parts []sss.Part) error {
 			fmt.Printf(" -  %s\n", f.Name())
 		}
 	}
+	fmt.Printf("found %d images\n", len(images))
 
 	// TODO if parts > len(images) add same image
 
