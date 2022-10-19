@@ -23,15 +23,30 @@ For example, having 5 `parts` with a `threshold` of 3 will split the `master-key
 
 ## Usage
 
+Quickstart:
+
+```
+stego encrypt --file mysecret.txt --parts 5 --threshold 3
+```
+```
+stego decrypt --file mysecret.txt.enc --key 1.key --key 2.key --img 3.jpg
+```
+
 ### encrypt
 
-To encrypt a file:
+To encrypt a file you can explicit the filename:
 
 ```
-stego encrypt -f mysecret.txt -p 5 -t 3
+stego encrypt --file mysecret.txt -p 5 -t 3
 ```
 
-This will generate
+or you can write the message:
+```
+-> % stego encrypt -p 5 -t 3
+Enter text: my secret message
+```
+
+This will generate (a lot) of files:
 
 ```
 # out
@@ -73,34 +88,26 @@ Checksums can be used to check the integrity of the files:
 mysecret.txt.enc: OK
 ```
 
-### Decrypt
+### decrypt
 
-To decrypt a file just use enough keys and/or images
+To decrypt a file just use enough keys and/or images:
 
 ```
 stego decrypt --file mysecret.txt.enc --key 1.key --key 2.key --img 3.jpg
 ```
 
-also the master key alone can be used to decrypt the file
+also the master key alone can be used to decrypt the file:
+
 ```
 stego decrypt --file mysecret.txt.enc --master-key mysecret.txt.key
 ```
 
 
-### Images
+### images
 
-To hide the partial keys with steganography you will need a folder with some images. To get some random images the `images` command can be used. It will get some random images from https://picsum.photos/ and it will store them in a `images` folder:
+To hide the partial keys with steganography you will need a folder with some images.  
+To get some random images from https://picsum.photos/ the `images` command can be used. They will be stored in the `images` folder.
 
 ```
 stego images
-```
-
----
-
-```
-stego encrypt -f/--file file.txt -p/--parts -t/--threshold -o/--output
-# if no file a message can be input and embedded inside the images
-
-stego decrypt -f/--file file.aes --master-key file.key -k/--key -i/--img
-# if no file is provided the it will get the message from the images/keys
 ```
