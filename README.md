@@ -31,7 +31,9 @@ To encrypt a file:
 stego encrypt -f mysecret.txt -p 5 -t 3
 ```
 
-This will generate 
+This will generate
+
+```
 # out
 mysecret.txt.checksum
 mysecret.txt.enc
