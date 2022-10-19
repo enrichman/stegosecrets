@@ -7,9 +7,15 @@ The partial keys can also be hidden inside images, adding an additional layer of
 
 ## How does it work?
 
-An input file (or message) will be encrypted using AES-256 with a crypto secure random 32 bit key. This key will be then splitted in `p` parts. A `t` threshold of number o partial keys is needed to recover the original key, and decrypt the secret.
+An input file (or message) will be encrypted using AES-256 with a crypto secure random 32 bit key. This key will be then splitted in `p` parts with SSS (Shamir's Secret Sharing).  
+A `t` threshold of partial keys is needed to recover the original key, and decrypt the secret.
 
-For example, having 5 `parts` with a `threshold` of 3 will split the `master-key` in 5 pieces. These pieces will be also hidden inside 5 images. To reconstruct the original master key at least 3 partial keys are needed.
+![IMG](doc/assets/stego1.png)
+
+For example, having 5 `parts` with a `threshold` of 3 will split the `master-key` in 5 pieces. These pieces will be also hidden inside 5 images. To reconstruct the original master key at least 3 partial keys and/or images are needed.
+
+![IMG](doc/assets/stego4.png)
+
 
 ```
 stego encrypt --file file.txt --parts 5 --threshold 3
