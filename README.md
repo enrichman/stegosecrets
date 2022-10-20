@@ -1,6 +1,8 @@
 
 # StegoSecretS
 
+![stego](doc/assets/stego.png)
+
 StegoSecretS combines [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) encryption, [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing) and [steganography](https://en.wikipedia.org/wiki/Steganography)!
 
 It helps you sharing a secret among other trusted peers, keeping a minimum threshold of keys to recover the original one.
