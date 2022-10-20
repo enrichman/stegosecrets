@@ -1,7 +1,7 @@
 
 # StegoSecretS
 
-![stego](doc/assets/stego.png)
+![stego](doc/assets/stego_s.png)
 
 StegoSecretS combines [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) encryption, [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing) and [steganography](https://en.wikipedia.org/wiki/Steganography)!
 
