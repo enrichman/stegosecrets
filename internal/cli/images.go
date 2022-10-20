@@ -32,7 +32,10 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		file.WriteFile(bb, fmt.Sprintf("images/%d.jpg", i))
+		err = file.WriteFile(bb, fmt.Sprintf("images/%d.jpg", i))
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -34,9 +34,7 @@ func EncodeSecretFromFileWithChecksum(secret []byte, inputFile, outputFile strin
 	}
 
 	checksum := fmt.Sprintf("%x\n", h.Sum(nil))
-	file.WriteFile([]byte(checksum), fmt.Sprintf("%s.checksum", outputFile))
-
-	return nil
+	return file.WriteFile([]byte(checksum), fmt.Sprintf("%s.checksum", outputFile))
 }
 
 func EncodeSecretFromFile(secret []byte, inputFile, outputFile string) error {
