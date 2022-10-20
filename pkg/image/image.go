@@ -56,14 +56,13 @@ func EncodeSecretFromFile(secret []byte, inputFile, outputFile string) error {
 }
 
 func EncodeSecret(secret []byte, imgIn io.Reader, imgOut io.Writer) error {
-	img, format, err := image.Decode(bufio.NewReader(imgIn))
+	img, _, err := image.Decode(bufio.NewReader(imgIn))
 	if err != nil {
 		return err
 	}
-	fmt.Println("format", format)
 
-	sizeOfMessage := steganography.MaxEncodeSize(img)
-	fmt.Println("sizeOfMessage", sizeOfMessage)
+	// TODO this should be checked with the secret to see if the image is big enough
+	// sizeOfMessage := steganography.MaxEncodeSize(img)
 
 	w := new(bytes.Buffer)
 	err = steganography.Encode(w, img, secret)

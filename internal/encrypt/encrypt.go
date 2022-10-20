@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/enrichman/stegosecrets/internal/log"
 	"github.com/enrichman/stegosecrets/pkg/file"
 	"github.com/enrichman/stegosecrets/pkg/image"
 	sss "github.com/enrichman/stegosecrets/pkg/stego"
@@ -15,6 +16,8 @@ import (
 type Encrypter struct {
 	Parts     int
 	Threshold int
+
+	Logger log.Logger
 }
 
 type OptFunc func(*Encrypter) error
@@ -52,19 +55,23 @@ func WithThreshold(threshold int) OptFunc {
 	}
 }
 
-func EncryptFile(filename string) {
-
-}
-
 func (e *Encrypter) Encrypt(reader io.Reader, filename string) error {
+	e.Logger.Print(fmt.Sprintf("Encrypting '%s'", filename))
+
+	e.Logger.Debug("generateAndSaveMasterKey")
 	masterKey, err := e.generateAndSaveMasterKey(filename)
 	if err != nil {
 		return err
 	}
 
+	e.Logger.Debug("encryptAndSaveMessage")
 	err = e.encryptAndSaveMessage(masterKey, reader, filename)
 	if err != nil {
 		return err
+	}
+
+	if e.Parts <= 1 {
+		e.Logger.Print("No parts provided. Only the master-key will be generated.")
 	}
 
 	if e.Parts > 1 {
@@ -87,7 +94,6 @@ func (e *Encrypter) generateAndSaveMasterKey(filename string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return masterKey, nil
 }
 
@@ -120,6 +126,8 @@ func (e *Encrypter) encryptAndSaveMessage(masterKey []byte, reader io.Reader, fi
 }
 
 func (e *Encrypter) splitAndSaveKey(masterKey []byte) error {
+	e.Logger.Print(fmt.Sprintf("Splitting key into %d parts (threshold: %d)", e.Parts, e.Threshold))
+
 	parts, err := sss.Split(masterKey, e.Parts, e.Threshold)
 	if err != nil {
 		return err
@@ -128,6 +136,10 @@ func (e *Encrypter) splitAndSaveKey(masterKey []byte) error {
 	images, err := e.getImages(len(parts))
 	if err != nil {
 		return err
+	}
+
+	if len(images) == 0 {
+		e.Logger.Print("No images found.")
 	}
 
 	err = e.saveKeysIntoImages(parts, images)

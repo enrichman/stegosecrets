@@ -3,34 +3,44 @@
 
 StegoSecretS combines [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) encryption, [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing) and [steganography](https://en.wikipedia.org/wiki/Steganography)!
 
-It helps you splitting a secret among other peers, keeping a minimum threshold of keys to recover the original one.
-The partial keys can be also be inside images, adding an additional layer of "security".
+It helps you sharing a secret among other trusted peers, keeping a minimum threshold of keys to recover the original one.
+The partial keys will be also hidden inside images, adding an additional layer of "security".
 
 ***Note:** the project is under active development. The APIs are subject to change!*
 
-## How does it work?
+## Quickstart
 
-An input file (or message) will be encrypted using AES-256 with a crypto secure random 32 bit key. This key will be then splitted in `p` parts with SSS (Shamir's Secret Sharing).  
-A `t` threshold of partial keys is needed to recover the original key, and decrypt the secret.
-
-![IMG](doc/assets/stego1.png)
-
-For example, having 5 `parts` with a `threshold` of 3 will split the `master-key` in 5 pieces. These pieces could be also hidden into 5 images. To reconstruct the original master key at least 3 partial keys and/or images are needed.
-
-![IMG](doc/assets/stego4.png)
-
-
-
-## Usage
-
-Quickstart:
-
+TLDR. Go to the [usage](#usage) section for more details
 ```
 stego encrypt --file mysecret.txt --parts 5 --threshold 3
 ```
 ```
-stego decrypt --file mysecret.txt.enc --key 1.key --key 2.key --img 3.jpg
+stego decrypt --file mysecret.txt.enc --img 1.jpg --key 2.key --img 3.jpg
 ```
+
+## How does it work?
+
+Alice wants to protect her new "patent pending nuclear blender project" from the EvilCompany. They want it, so she asks her friends Bob, Charlie and Dave to keep it safe. She trusts them, but she wants to add an additional layer of security, so she decided to give them an encrypted file, and a special key, sending to them an email with an image of a cat. 🐈
+
+![](doc/assets/stego5_3.png)
+
+With this special key Bob alone is not able to decrypt the secret, so even if someone from EvilCompany gets the hands on his secret he will not be able to decrypt the file. He will need to get also Charlie and Dave keys.
+
+![](doc/assets/stego6_3.png)
+
+### Ok, but.. how does it work?
+
+An input file (or message) will be encrypted using AES-256 with a crypto secure random 32 bit key. This key will be then splitted in `p` parts with the Shamir's Secret Sharing algorithm (SSS).  
+A `t` threshold of partial keys is needed to recover the original one, and decrypt the secret.
+
+![IMG](doc/assets/stego1.png)
+
+For example, encrypting the file having 5 `parts` with a `threshold` of 3 will split the `master-key` into 5 pieces. These pieces will be also hidden into 5 images. To reconstruct the original master key at least 3 partial keys and/or images are needed.
+
+![IMG](doc/assets/stego4.png)
+
+
+## Usage
 
 ### encrypt
 

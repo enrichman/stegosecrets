@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/enrichman/stegosecrets/internal/decrypt"
+	"github.com/enrichman/stegosecrets/pkg/file"
 	"github.com/spf13/cobra"
 )
 
@@ -34,7 +35,7 @@ func runDecryptCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	encryptedBytes, err := getInputFromFileOrStdin(encryptedFile)
+	encryptedBytes, err := file.ReadFile(encryptedFile)
 	if err != nil {
 		return err
 	}

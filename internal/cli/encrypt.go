@@ -4,6 +4,8 @@ import (
 	"bytes"
 
 	"github.com/enrichman/stegosecrets/internal/encrypt"
+	"github.com/enrichman/stegosecrets/internal/log"
+	"github.com/enrichman/stegosecrets/pkg/file"
 	"github.com/spf13/cobra"
 )
 
@@ -31,6 +33,8 @@ func newEncryptCmd() *cobra.Command {
 }
 
 func runEncryptCmd(cmd *cobra.Command, args []string) error {
+	logger := &log.SimpleLogger{}
+
 	encrypter, err := encrypt.NewEncrypter(
 		encrypt.WithParts(keyParts),
 		encrypt.WithThreshold(keyThreshold),
@@ -38,8 +42,16 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	encrypter.Logger = logger
 
-	toEncrypt, err := getInputFromFileOrStdin(cleartextFile)
+	var toEncrypt []byte
+	if cleartextFile != "" {
+		toEncrypt, err = file.ReadFile(cleartextFile)
+	} else {
+		cleartextFile = "secret.enc"
+		toEncrypt, err = getInputFromStdin()
+	}
+
 	if err != nil {
 		return err
 	}
