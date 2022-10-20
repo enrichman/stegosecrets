@@ -22,11 +22,11 @@ stego decrypt --file mysecret.txt.enc --img 1.jpg --key 2.key --img 3.jpg
 
 Alice wants to protect her new "patent pending nuclear blender project" from the EvilCompany. They want it, so she asks her friends Bob, Charlie and Dave to keep it safe. She trusts them, but she wants to add an additional layer of security, so she decided to give them an encrypted file, and a special key, sending to them an email with an image of a cat. 🐈
 
-![](doc/assets/stego5_3.png)
+![](doc/assets/stego5_1.png)
 
 With this special key Bob alone is not able to decrypt the secret, so even if someone from EvilCompany gets the hands on his secret he will not be able to decrypt the file. He will need to get also Charlie and Dave keys.
 
-![](doc/assets/stego6_3.png)
+![](doc/assets/stego6_1.png)
 
 ### Ok, but.. how does it work?
 
