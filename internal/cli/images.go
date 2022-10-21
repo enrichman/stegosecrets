@@ -9,19 +9,28 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	width  uint16
+	height uint16
+)
+
 func newImagesCmd() *cobra.Command {
-	return &cobra.Command{
+	encryptCmd := &cobra.Command{
 		Use:   "images",
 		Short: "images",
 		Long:  ``,
 		RunE:  runImagesCmd,
 	}
+
+	encryptCmd.Flags().Uint16Var(&width, "width", 900, "width")
+	encryptCmd.Flags().Uint16Var(&height, "height", 600, "height")
+
+	return encryptCmd
 }
 
 func runImagesCmd(cmd *cobra.Command, args []string) error {
-	// TODO add flags for w/h, number of images, folder..
 	for i := 1; i <= 10; i++ {
-		resp, err := http.Get("https://picsum.photos/900/600")
+		resp, err := http.Get(fmt.Sprintf("https://picsum.photos/%d/%d", width, height))
 		if err != nil {
 			return err
 		}
