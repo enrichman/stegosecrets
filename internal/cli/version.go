@@ -16,5 +16,5 @@ func newVersionCmd() *cobra.Command {
 }
 
 func runVersionCmd(_ *cobra.Command, _ []string) {
-	fmt.Printf("stego version: %s", Version)
+	fmt.Printf("%s version: %s", AppName, Version)
 }

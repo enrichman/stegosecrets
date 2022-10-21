@@ -8,11 +8,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const AppName = "stego"
+
 var Version = "0.0.0-dev"
 
 func NewRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "stego",
+		Use:   AppName,
 		Short: "stego",
 		Long:  ``,
 	}
