@@ -16,5 +16,5 @@ func newVersionCmd() *cobra.Command {
 }
 
 func runVersionCmd(_ *cobra.Command, _ []string) {
-	fmt.Printf("%s version: %s", AppName, Version)
+	fmt.Printf("%s version %s", AppName, Version)
 }
