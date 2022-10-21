@@ -7,8 +7,8 @@
 
 StegoSecretS combines [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) encryption, [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing) and [steganography](https://en.wikipedia.org/wiki/Steganography)!
 
-It helps you sharing a secret among other trusted peers, keeping a minimum threshold of keys to recover the original one.
-The partial keys will be also hidden inside images, adding an additional layer of "security".
+It helps you share a secret among other trusted peers, keeping a minimum threshold of keys to recover the original one.
+The partial keys will also be hidden inside images, adding an additional layer of "security".
 
 ***Note:** the project is under active development. The APIs are subject to change!*
 
@@ -26,18 +26,18 @@ stego decrypt --file mysecret.txt.enc --img 1.jpg --key 2.key --img 3.jpg
 
 Alice wants to protect her new "patent pending nuclear blender project" from EvilCompany.  
 They want it, so she asks her friends Bob, Charlie and Dave to keep it safe.  
-She trusts them, but to add an additional layer of security she email them an encrypted file, and an image of a cat containing a special key. 🐈
+She trusts them, but to add an additional layer of security she emails them an encrypted file and an image of a cat containing a special key. 🐈
 
 ![](doc/assets/stego5_1.png)
 
-With this special key Bob alone is not able to decrypt the secret, so even if someone from EvilCompany gets the hands on his secret it will be useless. They will still need to get also Charlie and Dave keys.
+With this special key Bob alone is not able to decrypt the secret, so even if someone from EvilCompany gets the hands on his secret it will be useless. They will still need to get Charlie's and Dave's keys.
 
 ![](doc/assets/stego6_1.png)
 
 ### Ok, but.. how does it work?
 
-An input file (or message) will be encrypted using AES-256 with a crypto secure random 32 bit key. This key will be then splitted in `p` parts with the Shamir's Secret Sharing algorithm (SSS).  
-A `t` threshold of partial keys is needed to recover the original one, and decrypt the secret.
+An input file (or message) will be encrypted using AES-256 with a crypto secure random 32 bit key. This key will be then split in `p` parts with Shamir's Secret Sharing algorithm (SSS).  
+A `t` threshold of partial keys is needed to recover the original one and decrypt the secret.
 
 ![IMG](doc/assets/stego1.png)
 
@@ -94,7 +94,7 @@ Partial files:
 - `n.jpg` the `n` image where the `n` partial key is hidden
 - `n.jpg.checksum` is the sha256 checksum of the `n.jpg` image
 
-**Note*:* If no parts are specified the `master-key` will not be splitted. Keep it safely stored, or delete it.  
+**Note*:* If no parts are specified the `master-key` will not be split. Keep it safely stored or delete it.  
 
 
 Checksums can be used to check the integrity of the files:
