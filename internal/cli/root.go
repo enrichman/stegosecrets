@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Version = "0.1.0"
+
 func NewRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "stego",
@@ -19,6 +21,7 @@ func NewRootCmd() *cobra.Command {
 		newEncryptCmd(),
 		newDecryptCmd(),
 		newImagesCmd(),
+		newVersionCmd(),
 	)
 
 	return rootCmd
