@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/enrichman/stegosecrets/internal/tui"
 	"github.com/spf13/cobra"
 )
 
@@ -17,6 +18,9 @@ func NewRootCmd() *cobra.Command {
 		Use:   AppName,
 		Short: "stego",
 		Long:  ``,
+		Run: func(cmd *cobra.Command, args []string) {
+			tui.Run()
+		},
 	}
 
 	rootCmd.AddCommand(
