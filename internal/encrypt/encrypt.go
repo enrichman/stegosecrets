@@ -1,11 +1,12 @@
 package encrypt
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/pkg/errors"
 
 	"github.com/enrichman/stegosecrets/internal/log"
 	"github.com/enrichman/stegosecrets/pkg/file"
@@ -23,16 +24,19 @@ type Encrypter struct {
 type OptFunc func(*Encrypter) error
 
 func NewEncrypter(opts ...OptFunc) (*Encrypter, error) {
-	encrypter := &Encrypter{}
+	enc := &Encrypter{}
 
 	for _, opt := range opts {
-		err := opt(encrypter)
-		if err != nil {
+		if err := opt(enc); err != nil {
 			return nil, err
 		}
 	}
 
-	return encrypter, nil
+	if enc.Threshold > enc.Parts {
+		return nil, errors.Errorf("threshold %d cannot exceed the parts %d", enc.Threshold, enc.Parts)
+	}
+
+	return enc, nil
 }
 
 func WithParts(parts int) OptFunc {
