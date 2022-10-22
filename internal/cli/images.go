@@ -15,17 +15,17 @@ var (
 )
 
 func newImagesCmd() *cobra.Command {
-	encryptCmd := &cobra.Command{
+	imagesCmd := &cobra.Command{
 		Use:   "images",
 		Short: "images",
 		Long:  ``,
 		RunE:  runImagesCmd,
 	}
 
-	encryptCmd.Flags().Uint16Var(&width, "width", 900, "width")
-	encryptCmd.Flags().Uint16Var(&height, "height", 600, "height")
+	imagesCmd.Flags().Uint16Var(&width, "width", 900, "width")
+	imagesCmd.Flags().Uint16Var(&height, "height", 600, "height")
 
-	return encryptCmd
+	return imagesCmd
 }
 
 func runImagesCmd(cmd *cobra.Command, args []string) error {
