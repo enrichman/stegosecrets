@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/enrichman/stegosecrets/pkg/file"
 	"github.com/spf13/cobra"
@@ -12,6 +13,7 @@ import (
 var (
 	width  uint16
 	height uint16
+	output string
 )
 
 func newImagesCmd() *cobra.Command {
@@ -24,11 +26,14 @@ func newImagesCmd() *cobra.Command {
 
 	imagesCmd.Flags().Uint16Var(&width, "width", 900, "width")
 	imagesCmd.Flags().Uint16Var(&height, "height", 600, "height")
+	imagesCmd.Flags().StringVarP(&output, "output", "o", "images", "output directory")
 
 	return imagesCmd
 }
 
 func runImagesCmd(cmd *cobra.Command, args []string) error {
+	checkIfDirectoryExistsAndCreate(output)
+
 	for i := 1; i <= 10; i++ {
 		resp, err := http.Get(fmt.Sprintf("https://picsum.photos/%d/%d", width, height))
 		if err != nil {
@@ -41,11 +46,18 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		err = file.WriteFile(bb, fmt.Sprintf("images/%d.jpg", i))
+		err = file.WriteFile(bb, fmt.Sprintf("%s/%d.jpg", output, i))
 		if err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func checkIfDirectoryExistsAndCreate(folder string) bool {
+	if err := os.Mkdir(folder, 0755); os.IsExist(err) {
+		return true
+	}
+	return false
 }
