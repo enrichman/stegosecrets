@@ -97,7 +97,6 @@ func (e *Encrypter) generateAndSaveMasterKey(filename string) ([]byte, error) {
 	}
 
 	if err := os.MkdirAll(outDirName, 0744); err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
