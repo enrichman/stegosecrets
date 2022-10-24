@@ -88,13 +88,20 @@ func (e *Encrypter) Encrypt(reader io.Reader, filename string) error {
 	return nil
 }
 
+const outDirName = "out"
+
 func (e *Encrypter) generateAndSaveMasterKey(filename string) ([]byte, error) {
 	masterKey, err := sss.GenerateMasterKey()
 	if err != nil {
 		return nil, err
 	}
 
-	err = file.WriteKey(masterKey, "out/"+filename)
+	if err := os.MkdirAll(outDirName, 0744); err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	err = file.WriteKey(masterKey, fmt.Sprintf("%s/%s.enc", outDirName, filename))
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +114,7 @@ func (e *Encrypter) encryptAndSaveMessage(masterKey []byte, reader io.Reader, fi
 		return err
 	}
 
-	err = file.WriteChecksum(message, "out/"+filename)
+	err = file.WriteChecksum(message, fmt.Sprintf("%s/%s.enc", outDirName, filename))
 	if err != nil {
 		return err
 	}
@@ -117,12 +124,12 @@ func (e *Encrypter) encryptAndSaveMessage(masterKey []byte, reader io.Reader, fi
 		return err
 	}
 
-	err = file.WriteFile(encryptedMessage, fmt.Sprintf("out/%s.enc", filename))
+	err = file.WriteFile(encryptedMessage, fmt.Sprintf("%s/%s.enc", outDirName, filename))
 	if err != nil {
 		return err
 	}
 
-	err = file.WriteChecksum(encryptedMessage, fmt.Sprintf("out/%s.enc", filename))
+	err = file.WriteChecksum(encryptedMessage, fmt.Sprintf("%s/%s.enc", outDirName, filename))
 	if err != nil {
 		return err
 	}
@@ -186,7 +193,7 @@ func (e *Encrypter) getImages(count int) ([]string, error) {
 
 func (e *Encrypter) saveKeysIntoImages(parts []sss.Part, images []string) error {
 	for i, part := range parts {
-		partialKeyFilename := fmt.Sprintf("out/%d", i+1)
+		partialKeyFilename := fmt.Sprintf("%s/%d", outDirName, i+1)
 
 		// write .key file
 		err := file.WriteKey(part.Bytes(), partialKeyFilename)
