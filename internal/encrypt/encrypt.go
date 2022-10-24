@@ -177,7 +177,7 @@ func (e *Encrypter) getImages(count int) ([]string, error) {
 	// TODO we can improve this
 	lenImages := len(images)
 	if lenImages == 0 {
-		return nil, errors.New("no image files in /images dir: run 'stego images' to get some random pics")
+		return nil, errors.Errorf("no image files in %s dir: run 'stego images' to get some random pics", dir)
 	}
 	for lenImages < count {
 		images = append(images, images...)
