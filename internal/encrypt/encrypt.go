@@ -1,11 +1,12 @@
 package encrypt
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/pkg/errors"
 
 	"github.com/enrichman/stegosecrets/internal/log"
 	"github.com/enrichman/stegosecrets/pkg/file"
@@ -23,16 +24,19 @@ type Encrypter struct {
 type OptFunc func(*Encrypter) error
 
 func NewEncrypter(opts ...OptFunc) (*Encrypter, error) {
-	encrypter := &Encrypter{}
+	enc := &Encrypter{}
 
 	for _, opt := range opts {
-		err := opt(encrypter)
-		if err != nil {
+		if err := opt(enc); err != nil {
 			return nil, err
 		}
 	}
 
-	return encrypter, nil
+	if enc.Threshold > enc.Parts {
+		return nil, errors.Errorf("threshold %d cannot exceed the parts %d", enc.Threshold, enc.Parts)
+	}
+
+	return enc, nil
 }
 
 func WithParts(parts int) OptFunc {
@@ -84,13 +88,19 @@ func (e *Encrypter) Encrypt(reader io.Reader, filename string) error {
 	return nil
 }
 
+const outDirName = "out"
+
 func (e *Encrypter) generateAndSaveMasterKey(filename string) ([]byte, error) {
 	masterKey, err := sss.GenerateMasterKey()
 	if err != nil {
 		return nil, err
 	}
 
-	err = file.WriteKey(masterKey, "out/"+filename)
+	if err := os.MkdirAll(outDirName, 0744); err != nil {
+		return nil, err
+	}
+
+	err = file.WriteKey(masterKey, fmt.Sprintf("%s/%s.enc", outDirName, filename))
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +113,7 @@ func (e *Encrypter) encryptAndSaveMessage(masterKey []byte, reader io.Reader, fi
 		return err
 	}
 
-	err = file.WriteChecksum(message, "out/"+filename)
+	err = file.WriteChecksum(message, fmt.Sprintf("%s/%s.enc", outDirName, filename))
 	if err != nil {
 		return err
 	}
@@ -113,12 +123,12 @@ func (e *Encrypter) encryptAndSaveMessage(masterKey []byte, reader io.Reader, fi
 		return err
 	}
 
-	err = file.WriteFile(encryptedMessage, fmt.Sprintf("out/%s.enc", filename))
+	err = file.WriteFile(encryptedMessage, fmt.Sprintf("%s/%s.enc", outDirName, filename))
 	if err != nil {
 		return err
 	}
 
-	err = file.WriteChecksum(encryptedMessage, fmt.Sprintf("out/%s.enc", filename))
+	err = file.WriteChecksum(encryptedMessage, fmt.Sprintf("%s/%s.enc", outDirName, filename))
 	if err != nil {
 		return err
 	}
@@ -172,6 +182,9 @@ func (e *Encrypter) getImages(count int) ([]string, error) {
 
 	// TODO we can improve this
 	lenImages := len(images)
+	if lenImages == 0 {
+		return nil, errors.Errorf("no image files in %s dir: run 'stego images' to get some random pics", dir)
+	}
 	for lenImages < count {
 		images = append(images, images...)
 		lenImages = len(images)
@@ -182,7 +195,7 @@ func (e *Encrypter) getImages(count int) ([]string, error) {
 
 func (e *Encrypter) saveKeysIntoImages(parts []sss.Part, images []string) error {
 	for i, part := range parts {
-		partialKeyFilename := fmt.Sprintf("out/%d", i+1)
+		partialKeyFilename := fmt.Sprintf("%s/%d", outDirName, i+1)
 
 		// write .key file
 		err := file.WriteKey(part.Bytes(), partialKeyFilename)
