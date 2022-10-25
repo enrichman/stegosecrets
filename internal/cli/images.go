@@ -32,7 +32,8 @@ func newImagesCmd() *cobra.Command {
 }
 
 func runImagesCmd(cmd *cobra.Command, args []string) error {
-	checkIfDirectoryExistsAndCreate(output)
+	// creates the output folder if it doesn't exists
+	os.Mkdir(output, 0755)
 
 	for i := 1; i <= 10; i++ {
 		resp, err := http.Get(fmt.Sprintf("https://picsum.photos/%d/%d", width, height))
@@ -53,11 +54,4 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
-}
-
-func checkIfDirectoryExistsAndCreate(folder string) bool {
-	if err := os.Mkdir(folder, 0755); os.IsExist(err) {
-		return true
-	}
-	return false
 }
