@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/enrichman/stegosecrets/pkg/file"
@@ -13,6 +14,7 @@ import (
 var (
 	width  uint16
 	height uint16
+	output string
 )
 
 func newImagesCmd() *cobra.Command {
@@ -25,6 +27,7 @@ func newImagesCmd() *cobra.Command {
 
 	imagesCmd.Flags().Uint16Var(&width, "width", 900, "width")
 	imagesCmd.Flags().Uint16Var(&height, "height", 600, "height")
+	imagesCmd.Flags().StringVarP(&output, "output", "o", "images", "output directory")
 
 	return imagesCmd
 }
@@ -32,6 +35,12 @@ func newImagesCmd() *cobra.Command {
 var client = http.Client{Timeout: 30 * time.Second}
 
 func runImagesCmd(cmd *cobra.Command, args []string) error {
+	// creates the output folder if it doesn't exists
+	err := os.MkdirAll(output, 0755)
+	if err != nil {
+		return err
+	}
+
 	for i := 1; i <= 10; i++ {
 		resp, err := client.Get(fmt.Sprintf("https://picsum.photos/%d/%d", width, height))
 		if err != nil {
@@ -44,7 +53,7 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		err = file.WriteFile(bb, fmt.Sprintf("images/%d.jpg", i))
+		err = file.WriteFile(bb, fmt.Sprintf("%s/%d.jpg", output, i))
 		if err != nil {
 			return err
 		}
