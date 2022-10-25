@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/enrichman/stegosecrets/pkg/file"
 	"github.com/spf13/cobra"
@@ -28,9 +29,11 @@ func newImagesCmd() *cobra.Command {
 	return imagesCmd
 }
 
+var client = http.Client{Timeout: 30 * time.Second}
+
 func runImagesCmd(cmd *cobra.Command, args []string) error {
 	for i := 1; i <= 10; i++ {
-		resp, err := http.Get(fmt.Sprintf("https://picsum.photos/%d/%d", width, height))
+		resp, err := client.Get(fmt.Sprintf("https://picsum.photos/%d/%d", width, height))
 		if err != nil {
 			return err
 		}
