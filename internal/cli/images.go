@@ -33,7 +33,10 @@ func newImagesCmd() *cobra.Command {
 
 func runImagesCmd(cmd *cobra.Command, args []string) error {
 	// creates the output folder if it doesn't exists
-	os.Mkdir(output, 0755)
+	err := os.Mkdir(output, 0755)
+	if err != nil {
+		return err
+	}
 
 	for i := 1; i <= 10; i++ {
 		resp, err := http.Get(fmt.Sprintf("https://picsum.photos/%d/%d", width, height))
