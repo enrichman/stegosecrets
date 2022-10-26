@@ -20,6 +20,10 @@ func NewSimpleLogger(debug bool) *SimpleLogger {
 	return &SimpleLogger{debugEnabled: debug}
 }
 
+func NewSilentLogger() *SilentLogger {
+	return &SilentLogger{}
+}
+
 func (s *SimpleLogger) Print(a ...any) {
 	fmt.Println(a...)
 }
