@@ -14,6 +14,7 @@ var (
 	keyParts      int
 	keyThreshold  int
 	outputDir     string
+	silentFlag    bool
 )
 
 func newEncryptCmd() *cobra.Command {
@@ -28,13 +29,12 @@ func newEncryptCmd() *cobra.Command {
 	encryptCmd.Flags().IntVarP(&keyParts, "parts", "p", 0, "parts")
 	encryptCmd.Flags().IntVarP(&keyThreshold, "threshold", "t", 0, "threshold")
 	encryptCmd.Flags().StringVarP(&outputDir, "output", "o", "", "output dir")
+	encryptCmd.Flags().BoolVarP(&silentFlag, "silent", "s", false, "silent mode")
 
 	return encryptCmd
 }
 
 func runEncryptCmd(cmd *cobra.Command, args []string) error {
-	logger := log.NewSimpleLogger(verbose)
-
 	encrypter, err := encrypt.NewEncrypter(
 		encrypt.WithParts(keyParts),
 		encrypt.WithThreshold(keyThreshold),
@@ -42,7 +42,12 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	encrypter.Logger = logger
+
+	if silentFlag {
+		encrypter.Logger = &log.SilentLogger{}
+	} else {
+		encrypter.Logger = log.NewSimpleLogger(verbose)
+	}
 
 	var toEncrypt []byte
 	if cleartextFile != "" {
