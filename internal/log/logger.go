@@ -13,6 +13,9 @@ type SimpleLogger struct {
 	debugEnabled bool
 }
 
+type SilentLogger struct {
+}
+
 func NewSimpleLogger(debug bool) *SimpleLogger {
 	return &SimpleLogger{debugEnabled: debug}
 }
@@ -25,4 +28,12 @@ func (s *SimpleLogger) Debug(a ...any) {
 	if s.debugEnabled {
 		fmt.Println(a...)
 	}
+}
+
+func (s *SilentLogger) Print(a ...any) {
+	// SilentLogger - Do nothing
+}
+
+func (s *SilentLogger) Debug(a ...any) {
+	// SilentLogger - Do nothing
 }
