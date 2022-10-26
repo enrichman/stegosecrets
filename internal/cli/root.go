@@ -10,7 +10,10 @@ import (
 
 const AppName = "stego"
 
-var Version = "0.0.0-dev"
+var (
+	Version = "0.0.0-dev"
+	Verbose bool
+)
 
 func NewRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
@@ -18,6 +21,8 @@ func NewRootCmd() *cobra.Command {
 		Short: "stego",
 		Long:  ``,
 	}
+
+	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 
 	rootCmd.AddCommand(
 		newEncryptCmd(),

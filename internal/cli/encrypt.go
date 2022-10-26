@@ -33,7 +33,7 @@ func newEncryptCmd() *cobra.Command {
 }
 
 func runEncryptCmd(cmd *cobra.Command, args []string) error {
-	logger := &log.SimpleLogger{}
+	logger := log.NewSimpleLogger(Verbose)
 
 	encrypter, err := encrypt.NewEncrypter(
 		encrypt.WithParts(keyParts),
