@@ -35,14 +35,17 @@ func newImagesCmd() *cobra.Command {
 	return imagesCmd
 }
 
-var client = http.Client{Timeout: 30 * time.Second}
+var (
+	client                = http.Client{Timeout: 30 * time.Second}
+	errInvalidNumOfImages = errors.New("number of images must be at least 1")
+)
 
 func runImagesCmd(cmd *cobra.Command, args []string) error {
 	if imagesNum == 0 {
-		return errors.New("number of images must be at least 1")
+		return errInvalidNumOfImages
 	}
 	// creates the output folder if it doesn't exists
-	err := os.MkdirAll(output, 0755)
+	err := os.MkdirAll(output, 0o755)
 	if err != nil {
 		return err
 	}

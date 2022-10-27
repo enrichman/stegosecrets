@@ -6,12 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/pkg/errors"
-
 	"github.com/enrichman/stegosecrets/internal/log"
 	"github.com/enrichman/stegosecrets/pkg/file"
 	"github.com/enrichman/stegosecrets/pkg/image"
 	sss "github.com/enrichman/stegosecrets/pkg/stego"
+	"github.com/pkg/errors"
 )
 
 type Encrypter struct {
@@ -44,7 +43,9 @@ func WithParts(parts int) OptFunc {
 		if parts < 0 || parts > 256 {
 			return errors.New("invalid parts")
 		}
+
 		e.Parts = parts
+
 		return nil
 	}
 }
@@ -54,7 +55,9 @@ func WithThreshold(threshold int) OptFunc {
 		if threshold < 0 || threshold > 256 {
 			return errors.New("invalid threshold")
 		}
+
 		e.Threshold = threshold
+
 		return nil
 	}
 }
@@ -63,12 +66,14 @@ func (e *Encrypter) Encrypt(reader io.Reader, filename string) error {
 	e.Logger.Print(fmt.Sprintf("Encrypting '%s'", filename))
 
 	e.Logger.Debug("generateAndSaveMasterKey")
+
 	masterKey, err := e.generateAndSaveMasterKey(filename)
 	if err != nil {
 		return err
 	}
 
 	e.Logger.Debug("encryptAndSaveMessage")
+
 	err = e.encryptAndSaveMessage(masterKey, reader, filename)
 	if err != nil {
 		return err
@@ -96,7 +101,7 @@ func (e *Encrypter) generateAndSaveMasterKey(filename string) ([]byte, error) {
 		return nil, err
 	}
 
-	if err := os.MkdirAll(outDirName, 0744); err != nil {
+	if err := os.MkdirAll(outDirName, 0o744); err != nil {
 		return nil, err
 	}
 
@@ -104,6 +109,7 @@ func (e *Encrypter) generateAndSaveMasterKey(filename string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return masterKey, nil
 }
 
@@ -132,6 +138,7 @@ func (e *Encrypter) encryptAndSaveMessage(masterKey []byte, reader io.Reader, fi
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -175,6 +182,7 @@ func (e *Encrypter) getImages(count int) ([]string, error) {
 		case ".jpg", ".jpeg", ".png":
 			images = append(images, filepath.Join(dir, file.Name()))
 		}
+
 		if len(images) >= count {
 			break
 		}
@@ -185,6 +193,7 @@ func (e *Encrypter) getImages(count int) ([]string, error) {
 	if lenImages == 0 {
 		return nil, errors.Errorf("no image files in %s dir: run 'stego images' to get some random pics", dir)
 	}
+
 	for lenImages < count {
 		images = append(images, images...)
 		lenImages = len(images)

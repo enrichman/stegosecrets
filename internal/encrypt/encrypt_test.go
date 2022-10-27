@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/enrichman/stegosecrets/internal/encrypt"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewEncrypter(t *testing.T) {

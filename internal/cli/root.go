@@ -40,6 +40,7 @@ func getInputFromStdin() ([]byte, error) {
 	fmt.Print("Enter text: ")
 
 	reader := bufio.NewReader(os.Stdin)
+
 	text, err := reader.ReadBytes('\n')
 	if err != nil {
 		return nil, err

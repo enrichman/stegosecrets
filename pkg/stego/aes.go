@@ -8,11 +8,14 @@ import (
 	"io"
 )
 
+var errCiphertextBlockSizeTooShort = errors.New("ciphertext block size is too short")
+
 func GenerateMasterKey() ([]byte, error) {
 	key := make([]byte, 32)
 	if _, err := rand.Read(key); err != nil {
 		return nil, err
 	}
+
 	return key, nil
 }
 
@@ -46,7 +49,7 @@ func Decrypt(key []byte, cipherText []byte) ([]byte, error) {
 
 	// the length of the cipherText has to be more than 16 Bytes
 	if len(cipherText) < aes.BlockSize {
-		return nil, errors.New("ciphertext block size is too short")
+		return nil, errCiphertextBlockSizeTooShort
 	}
 
 	iv := cipherText[:aes.BlockSize]

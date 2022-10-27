@@ -2,17 +2,18 @@ package file
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"os"
 	"path"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func Test_WriteFileChecksum(t *testing.T) {
 	tmpDir := t.TempDir()
 	original := path.Join(tmpDir, "file")
 
-	err := os.WriteFile(original, []byte("content"), 0600)
+	err := os.WriteFile(original, []byte("content"), 0o600)
 	require.NoError(t, err)
 
 	err = WriteFileChecksum(original)
