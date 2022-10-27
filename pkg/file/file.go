@@ -26,10 +26,12 @@ func WriteFileChecksum(filename string) error {
 
 func WriteChecksum(content []byte, filename string) error {
 	h := sha256.New()
+
 	_, err := h.Write(content)
 	if err != nil {
 		return err
 	}
+
 	checksum := fmt.Sprintf("%x\t%s", h.Sum(nil), filepath.Base(filename))
 
 	return WriteFile([]byte(checksum), fmt.Sprintf("%s.checksum", filename))
@@ -37,6 +39,7 @@ func WriteChecksum(content []byte, filename string) error {
 
 func WriteKey(key []byte, filename string) error {
 	base64EncodedKey := base64.StdEncoding.EncodeToString(key)
+
 	return WriteFile([]byte(base64EncodedKey), fmt.Sprintf("%s.key", filename))
 }
 
@@ -48,6 +51,7 @@ func WriteFile(content []byte, filename string) error {
 	defer f.Close()
 
 	_, err = f.Write(content)
+
 	return err
 }
 
@@ -62,6 +66,7 @@ func ReadFile(filename string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return bb, nil
 }
 
@@ -75,5 +80,6 @@ func ReadKey(filename string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return decodedKey, nil
 }

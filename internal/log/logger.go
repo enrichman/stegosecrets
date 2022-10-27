@@ -27,7 +27,7 @@ func (s *SimpleLogger) Debug(a ...any) {
 	}
 }
 
-// SilentLogger is a nop Logger implementation
+// SilentLogger is a nop Logger implementation.
 type SilentLogger struct{}
 
 func (s *SilentLogger) Print(a ...any) {}

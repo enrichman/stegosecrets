@@ -1,8 +1,9 @@
 package stego
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func Test_EncryptDecrypt(t *testing.T) {
@@ -36,8 +37,11 @@ func Benchmark_Encrypt(b *testing.B) {
 	if err != nil {
 		b.Fatal(err)
 	}
+
 	message := []byte("test message")
+
 	b.ReportAllocs()
+
 	for i := 0; i < b.N; i++ {
 		_, err := Encrypt(key, message)
 		if err != nil {
@@ -51,11 +55,14 @@ func Benchmark_Decrypt(b *testing.B) {
 	if err != nil {
 		b.Fatal(err)
 	}
+
 	encr, err := Encrypt(key, []byte("test message"))
 	if err != nil {
 		b.Fatal(err)
 	}
+
 	b.ReportAllocs()
+
 	for i := 0; i < b.N; i++ {
 		_, err := Decrypt(key, encr)
 		if err != nil {
