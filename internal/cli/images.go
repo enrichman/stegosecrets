@@ -47,7 +47,7 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	for imagesNum != 0 {
+	for i := 1; i <= int(imagesNum); i++ {
 		resp, err := client.Get(fmt.Sprintf("https://picsum.photos/%d/%d", width, height))
 		if err != nil {
 			return err
@@ -59,11 +59,10 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		err = file.WriteFile(bb, fmt.Sprintf("%s/%03d.jpg", output, imagesNum))
+		err = file.WriteFile(bb, fmt.Sprintf("%s/%03d.jpg", output, i))
 		if err != nil {
 			return err
 		}
-		imagesNum--
 	}
 
 	return nil
