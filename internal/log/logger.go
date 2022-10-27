@@ -13,9 +13,6 @@ type SimpleLogger struct {
 	debugEnabled bool
 }
 
-type SilentLogger struct {
-}
-
 func NewSimpleLogger(debug bool) *SimpleLogger {
 	return &SimpleLogger{debugEnabled: debug}
 }
@@ -34,10 +31,9 @@ func (s *SimpleLogger) Debug(a ...any) {
 	}
 }
 
-func (s *SilentLogger) Print(a ...any) {
-	// SilentLogger - Do nothing
-}
+// SilentLogger is a nop Logger implementation
+type SilentLogger struct{}
 
-func (s *SilentLogger) Debug(a ...any) {
-	// SilentLogger - Do nothing
-}
+func (s *SilentLogger) Print(a ...any) {}
+
+func (s *SilentLogger) Debug(a ...any) {}
