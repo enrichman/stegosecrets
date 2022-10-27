@@ -42,7 +42,7 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	if silent {
-		encrypter.Logger = log.NewSilentLogger()
+		encrypter.Logger = &log.SilentLogger{}
 	} else {
 		encrypter.Logger = log.NewSimpleLogger(verbose)
 	}
