@@ -51,7 +51,7 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	bar := progressbar.Default(int(imagesNum), "Downloading images...")
+	bar := progressbar.Default(int64(imagesNum), "Downloading images...")
 	for i := 1; i <= int(imagesNum); i++ {
 		resp, err := client.Get(fmt.Sprintf("https://picsum.photos/%d/%d", width, height))
 		if err != nil {
