@@ -62,12 +62,12 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 		}
 		err = bar.Add(1)
 		if err != nil {
-			return err
+			fmt.Println("Could not add to bar: ", err)
 		}
 	}
 	err = bar.Finish()
 	if err != nil {
-		return err
+		fmt.Println("Could not add to bar: ", err)
 	}
 	return nil
 }
