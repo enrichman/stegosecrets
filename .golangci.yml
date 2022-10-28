@@ -34,4 +34,3 @@ linters:
     - exhaustruct
     - godox
     - paralleltest
-    - testpackage
