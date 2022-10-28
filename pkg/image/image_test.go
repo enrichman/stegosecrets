@@ -1,4 +1,4 @@
-package image
+package image_test
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"image/jpeg"
 	"testing"
 
+	stegoimage "github.com/enrichman/stegosecrets/pkg/image"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,10 +20,10 @@ func Test_EncodeDecodeSecret(t *testing.T) {
 	require.NoError(t, err)
 
 	var imageOut bytes.Buffer
-	err = EncodeSecret(secret, &imageBuff, &imageOut)
+	err = stegoimage.EncodeSecret(secret, &imageBuff, &imageOut)
 	require.NoError(t, err)
 
-	out, err := DecodeSecret(&imageOut)
+	out, err := stegoimage.DecodeSecret(&imageOut)
 	require.NoError(t, err)
 
 	require.Equal(t, secret, out)
