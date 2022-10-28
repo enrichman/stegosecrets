@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/enrichman/stegosecrets/pkg/file"
+	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 )
 
@@ -50,6 +51,8 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	bar := progressbar.Default(int64(imagesNum), "Downloading images...")
+
 	for i := 1; i <= int(imagesNum); i++ {
 		resp, err := client.Get(fmt.Sprintf("https://picsum.photos/%d/%d", width, height))
 		if err != nil {
@@ -66,6 +69,16 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
+
+		err = bar.Add(1)
+		if err != nil {
+			fmt.Println("Error adding value to progress bar: ", err)
+		}
+	}
+
+	err = bar.Finish()
+	if err != nil {
+		fmt.Println("Error closing progress bar: ", err)
 	}
 
 	return nil
