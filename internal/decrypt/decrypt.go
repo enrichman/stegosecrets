@@ -37,6 +37,7 @@ func WithMasterKeyFile(filename string) OptFunc {
 		}
 
 		d.MasterKey = masterKey
+
 		return nil
 	}
 }
@@ -49,6 +50,7 @@ func WithPartialKeyFiles(filenames []string) OptFunc {
 				return err
 			}
 		}
+
 		return nil
 	}
 }
@@ -61,11 +63,12 @@ func WithPartialKeyFile(filename string) OptFunc {
 		}
 
 		d.Parts = append(d.Parts, sss.NewPart(partialKey))
+
 		return nil
 	}
 }
 
-// TODO fix
+// TODO fix.
 func WithPartialKeyImageFile(filename string) OptFunc {
 	return func(d *Decrypter) error {
 		partialKey, err := file.ReadKey(filename)
@@ -74,14 +77,16 @@ func WithPartialKeyImageFile(filename string) OptFunc {
 		}
 
 		d.Parts = append(d.Parts, sss.NewPart(partialKey))
+
 		return nil
 	}
 }
 
 func (d *Decrypter) Decrypt(content []byte, filename string) error {
-
-	var key []byte
-	var err error
+	var (
+		key []byte
+		err error
+	)
 
 	if len(d.MasterKey) > 0 {
 		key = d.MasterKey

@@ -33,8 +33,6 @@ func newEncryptCmd() *cobra.Command {
 }
 
 func runEncryptCmd(cmd *cobra.Command, args []string) error {
-	logger := log.NewSimpleLogger(verbose)
-
 	encrypter, err := encrypt.NewEncrypter(
 		encrypt.WithParts(keyParts),
 		encrypt.WithThreshold(keyThreshold),
@@ -42,7 +40,12 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	encrypter.Logger = logger
+
+	if silent {
+		encrypter.Logger = &log.SilentLogger{}
+	} else {
+		encrypter.Logger = log.NewSimpleLogger(verbose)
+	}
 
 	var toEncrypt []byte
 	if cleartextFile != "" {

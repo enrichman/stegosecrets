@@ -13,6 +13,7 @@ const AppName = "stego"
 var (
 	Version = "0.0.0-dev"
 	verbose bool
+	silent  bool
 )
 
 func NewRootCmd() *cobra.Command {
@@ -23,6 +24,7 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+	rootCmd.PersistentFlags().BoolVarP(&silent, "silent", "s", false, "silent output")
 
 	rootCmd.AddCommand(
 		newEncryptCmd(),
@@ -38,6 +40,7 @@ func getInputFromStdin() ([]byte, error) {
 	fmt.Print("Enter text: ")
 
 	reader := bufio.NewReader(os.Stdin)
+
 	text, err := reader.ReadBytes('\n')
 	if err != nil {
 		return nil, err

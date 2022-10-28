@@ -1,21 +1,23 @@
-package file
+package file_test
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"os"
 	"path"
 	"testing"
+
+	"github.com/enrichman/stegosecrets/pkg/file"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_WriteFileChecksum(t *testing.T) {
 	tmpDir := t.TempDir()
 	original := path.Join(tmpDir, "file")
 
-	err := os.WriteFile(original, []byte("content"), 0600)
+	err := os.WriteFile(original, []byte("content"), 0o600)
 	require.NoError(t, err)
 
-	err = WriteFileChecksum(original)
+	err = file.WriteFileChecksum(original)
 	require.NoError(t, err)
 
 	checksum, err := os.ReadFile(fmt.Sprintf("%s.checksum", original))
@@ -30,10 +32,10 @@ func Test_WriteKey(t *testing.T) {
 	keyFile := path.Join(tmpDir, "file")
 
 	expectedKey := []byte("test")
-	err := WriteKey(expectedKey, keyFile)
+	err := file.WriteKey(expectedKey, keyFile)
 	require.NoError(t, err)
 
-	key, err := ReadKey(keyFile + ".key")
+	key, err := file.ReadKey(keyFile + ".key")
 	require.NoError(t, err)
 	require.Equal(t, expectedKey, key)
 }

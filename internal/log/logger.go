@@ -26,3 +26,10 @@ func (s *SimpleLogger) Debug(a ...any) {
 		fmt.Println(a...)
 	}
 }
+
+// SilentLogger is a nop Logger implementation.
+type SilentLogger struct{}
+
+func (s *SilentLogger) Print(a ...any) {}
+
+func (s *SilentLogger) Debug(a ...any) {}

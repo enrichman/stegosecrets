@@ -6,11 +6,10 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"image"
+	_ "image/jpeg" // enable decoding for jpeg images.
+	_ "image/png"  // enable decoding for png images.
 	"io"
 	"os"
-
-	_ "image/jpeg"
-	_ "image/png"
 
 	"github.com/auyer/steganography"
 	"github.com/enrichman/stegosecrets/pkg/file"
@@ -34,6 +33,7 @@ func EncodeSecretFromFileWithChecksum(secret []byte, inputFile, outputFile strin
 	}
 
 	checksum := fmt.Sprintf("%x\n", h.Sum(nil))
+
 	return file.WriteFile([]byte(checksum), fmt.Sprintf("%s.checksum", outputFile))
 }
 
@@ -63,12 +63,14 @@ func EncodeSecret(secret []byte, imgIn io.Reader, imgOut io.Writer) error {
 	// sizeOfMessage := steganography.MaxEncodeSize(img)
 
 	w := new(bytes.Buffer)
+
 	err = steganography.Encode(w, img, secret)
 	if err != nil {
 		return err
 	}
 
 	_, err = w.WriteTo(imgOut)
+
 	return err
 }
 
@@ -77,11 +79,13 @@ func DecodeSecret(imgIn io.Reader) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	fmt.Println("format", format)
 
 	sizeOfMessage := steganography.GetMessageSizeFromImage(img)
 	fmt.Println("sizeOfMessage", sizeOfMessage)
 
 	msg := steganography.Decode(sizeOfMessage, img)
+
 	return msg, nil
 }
