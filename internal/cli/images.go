@@ -3,12 +3,12 @@ package cli
 import (
 	"errors"
 	"fmt"
-	"github.com/enrichman/stegosecrets/pkg/file"
 	"io"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/enrichman/stegosecrets/pkg/file"
 	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 )
@@ -52,6 +52,7 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	bar := progressbar.Default(int64(imagesNum), "Downloading images...")
+
 	for i := 1; i <= int(imagesNum); i++ {
 		resp, err := client.Get(fmt.Sprintf("https://picsum.photos/%d/%d", width, height))
 		if err != nil {
@@ -68,14 +69,17 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
+
 		err = bar.Add(1)
 		if err != nil {
 			fmt.Println("Could not add to bar: ", err)
 		}
 	}
+
 	err = bar.Finish()
 	if err != nil {
 		fmt.Println("Could not add to bar: ", err)
 	}
+
 	return nil
 }
