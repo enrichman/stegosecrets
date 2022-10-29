@@ -6,6 +6,7 @@ import (
 	"github.com/enrichman/stegosecrets/internal/encrypt"
 	"github.com/enrichman/stegosecrets/internal/log"
 	"github.com/enrichman/stegosecrets/pkg/file"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +39,7 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 		encrypt.WithThreshold(keyThreshold),
 	)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed creating encrypter")
 	}
 
 	if silent {
@@ -56,8 +57,13 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "failed getting input to encrypt '%s'", cleartextFile)
 	}
 
-	return encrypter.Encrypt(bytes.NewReader(toEncrypt), cleartextFile)
+	err = encrypter.Encrypt(bytes.NewReader(toEncrypt), cleartextFile)
+	if err != nil {
+		return errors.Wrapf(err, "failed encrypting file '%s'", cleartextFile)
+	}
+
+	return nil
 }

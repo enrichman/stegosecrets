@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 
 	shamir "github.com/corvus-ch/shamir"
+	"github.com/pkg/errors"
 )
 
 type Part struct {
@@ -34,7 +35,7 @@ func (p Part) Base64() string {
 func Split(secret []byte, parts, threshold int) ([]Part, error) {
 	partsMap, err := shamir.Split(secret, parts, threshold)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed splitting secret")
 	}
 
 	keys := []Part{}
@@ -56,7 +57,7 @@ func Combine(parts []Part) ([]byte, error) {
 
 	res, err := shamir.Combine(combinedMap)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed combining secret")
 	}
 
 	return res, nil

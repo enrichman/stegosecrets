@@ -26,7 +26,6 @@ linters:
     - forbidigo
 
     # to evaluate
-    - wrapcheck
     - varnamelen
     - noctx
     - gomnd

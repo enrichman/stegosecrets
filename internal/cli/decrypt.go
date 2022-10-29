@@ -3,6 +3,7 @@ package cli
 import (
 	"github.com/enrichman/stegosecrets/internal/decrypt"
 	"github.com/enrichman/stegosecrets/pkg/file"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -32,15 +33,20 @@ func newDecryptCmd() *cobra.Command {
 func runDecryptCmd(cmd *cobra.Command, args []string) error {
 	decrypter, err := buildDecrypter()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed building decrypter")
 	}
 
 	encryptedBytes, err := file.ReadFile(encryptedFile)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "failed reading file '%s'", encryptedFile)
 	}
 
-	return decrypter.Decrypt(encryptedBytes, encryptedFile)
+	err = decrypter.Decrypt(encryptedBytes, encryptedFile)
+	if err != nil {
+		return errors.Wrapf(err, "failed decrypting file '%s'", encryptedFile)
+	}
+
+	return nil
 }
 
 func buildDecrypter() (*decrypt.Decrypter, error) {
@@ -58,5 +64,10 @@ func buildDecrypter() (*decrypt.Decrypter, error) {
 		decrypterOpts = append(decrypterOpts, decrypt.WithPartialKeyImageFile(filename))
 	}
 
-	return decrypt.NewDecrypter(decrypterOpts...)
+	decrypter, err := decrypt.NewDecrypter(decrypterOpts...)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed creating decrypter")
+	}
+
+	return decrypter, nil
 }
