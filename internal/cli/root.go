@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -43,7 +44,7 @@ func getInputFromStdin() ([]byte, error) {
 
 	text, err := reader.ReadBytes('\n')
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed reading bytes from stdin")
 	}
 
 	return text, nil

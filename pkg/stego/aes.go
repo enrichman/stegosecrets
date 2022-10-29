@@ -4,8 +4,9 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"errors"
 	"io"
+
+	"github.com/pkg/errors"
 )
 
 var errCiphertextBlockSizeTooShort = errors.New("ciphertext block size is too short")
@@ -13,7 +14,7 @@ var errCiphertextBlockSizeTooShort = errors.New("ciphertext block size is too sh
 func GenerateMasterKey() ([]byte, error) {
 	key := make([]byte, 32)
 	if _, err := rand.Read(key); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed getting random 32 bit key")
 	}
 
 	return key, nil
@@ -22,7 +23,7 @@ func GenerateMasterKey() ([]byte, error) {
 func Encrypt(key []byte, message []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed getting random 32 bit key")
 	}
 
 	// make the cipher text a byte array of size BlockSize + the length of the message
@@ -31,7 +32,7 @@ func Encrypt(key []byte, message []byte) ([]byte, error) {
 	// iv is the ciphertext up to the blocksize (16)
 	iv := cipherText[:aes.BlockSize]
 	if _, err = io.ReadFull(rand.Reader, iv); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed reading from ciphertext")
 	}
 
 	// encrypt data
@@ -44,7 +45,7 @@ func Encrypt(key []byte, message []byte) ([]byte, error) {
 func Decrypt(key []byte, cipherText []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed creating AES cipher")
 	}
 
 	// the length of the cipherText has to be more than 16 Bytes

@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,6 +8,7 @@ import (
 	"time"
 
 	"github.com/enrichman/stegosecrets/pkg/file"
+	"github.com/pkg/errors"
 	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 )
@@ -48,26 +48,30 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 	// creates the output folder if it doesn't exists
 	err := os.MkdirAll(output, 0o755)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "failed creating output images folder '%s'", output)
 	}
 
 	bar := progressbar.Default(int64(imagesNum), "Downloading images...")
 
 	for i := 1; i <= int(imagesNum); i++ {
-		resp, err := client.Get(fmt.Sprintf("https://picsum.photos/%d/%d", width, height))
+		url := fmt.Sprintf("https://picsum.photos/%d/%d", width, height)
+
+		resp, err := client.Get(url)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "failed http get request to Picsum [%s]", url)
 		}
 		defer resp.Body.Close()
 
 		bb, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed reading response from Picsum")
 		}
 
-		err = file.WriteFile(bb, fmt.Sprintf("%s/%03d.jpg", output, i))
+		imageFilename := fmt.Sprintf("%s/%03d.jpg", output, i)
+
+		err = file.WriteFile(bb, imageFilename)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "failed writing file '%s'", imageFilename)
 		}
 
 		err = bar.Add(1)

@@ -5,6 +5,7 @@ import (
 
 	"github.com/enrichman/stegosecrets/pkg/file"
 	sss "github.com/enrichman/stegosecrets/pkg/stego"
+	"github.com/pkg/errors"
 )
 
 type Decrypter struct {
@@ -22,7 +23,7 @@ func NewDecrypter(opts ...OptFunc) (*Decrypter, error) {
 	for _, opt := range opts {
 		err := opt(decrypter)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed applying options to decrypter")
 		}
 	}
 
@@ -33,7 +34,7 @@ func WithMasterKeyFile(filename string) OptFunc {
 	return func(d *Decrypter) error {
 		masterKey, err := file.ReadKey(filename)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed reading master key file")
 		}
 
 		d.MasterKey = masterKey
@@ -47,7 +48,7 @@ func WithPartialKeyFiles(filenames []string) OptFunc {
 		for _, filename := range filenames {
 			err := WithPartialKeyFile(filename)(d)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "failed reading partial key file")
 			}
 		}
 
@@ -59,7 +60,7 @@ func WithPartialKeyFile(filename string) OptFunc {
 	return func(d *Decrypter) error {
 		partialKey, err := file.ReadKey(filename)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed reading partial key file")
 		}
 
 		d.Parts = append(d.Parts, sss.NewPart(partialKey))
@@ -73,7 +74,7 @@ func WithPartialKeyImageFile(filename string) OptFunc {
 	return func(d *Decrypter) error {
 		partialKey, err := file.ReadKey(filename)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed reading partial key image file")
 		}
 
 		d.Parts = append(d.Parts, sss.NewPart(partialKey))
@@ -93,15 +94,20 @@ func (d *Decrypter) Decrypt(content []byte, filename string) error {
 	} else {
 		key, err = sss.Combine(d.Parts)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed combining parts")
 		}
 	}
 
 	cleartext, err := sss.Decrypt(key, content)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed decrypting content")
 	}
 
 	// TODO check checksum
-	return file.WriteFile(cleartext, strings.TrimSuffix(filename, ".enc"))
+	err = file.WriteFile(cleartext, strings.TrimSuffix(filename, ".enc"))
+	if err != nil {
+		return errors.Wrap(err, "failed writing decoded file")
+	}
+
+	return nil
 }

@@ -69,14 +69,14 @@ func (e *Encrypter) Encrypt(reader io.Reader, filename string) error {
 
 	masterKey, err := e.generateAndSaveMasterKey(filename)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "failed generating and saving master key '%s'", filename)
 	}
 
 	e.Logger.Debug("encryptAndSaveMessage")
 
 	err = e.encryptAndSaveMessage(masterKey, reader, filename)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "failed encrypting and saving message '%s'", filename)
 	}
 
 	if e.Parts <= 1 {
@@ -86,7 +86,7 @@ func (e *Encrypter) Encrypt(reader io.Reader, filename string) error {
 	if e.Parts > 1 {
 		err = e.splitAndSaveKey(masterKey)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed splitting and saving master key")
 		}
 	}
 
@@ -98,16 +98,16 @@ const outDirName = "out"
 func (e *Encrypter) generateAndSaveMasterKey(filename string) ([]byte, error) {
 	masterKey, err := sss.GenerateMasterKey()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed generating master key")
 	}
 
 	if err := os.MkdirAll(outDirName, 0o744); err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "failed creatind folder '%s'", outDirName)
 	}
 
 	err = file.WriteKey(masterKey, fmt.Sprintf("%s/%s.enc", outDirName, filename))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed writing key file")
 	}
 
 	return masterKey, nil
@@ -116,27 +116,28 @@ func (e *Encrypter) generateAndSaveMasterKey(filename string) ([]byte, error) {
 func (e *Encrypter) encryptAndSaveMessage(masterKey []byte, reader io.Reader, filename string) error {
 	message, err := io.ReadAll(reader)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed reading message")
 	}
 
+	// FIX? is this a copy/paste bug?
 	err = file.WriteChecksum(message, fmt.Sprintf("%s/%s.enc", outDirName, filename))
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed writing checksum file of original message")
 	}
 
 	encryptedMessage, err := sss.Encrypt(masterKey, message)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed encrypting message")
 	}
 
 	err = file.WriteFile(encryptedMessage, fmt.Sprintf("%s/%s.enc", outDirName, filename))
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed writing encoded file")
 	}
 
 	err = file.WriteChecksum(encryptedMessage, fmt.Sprintf("%s/%s.enc", outDirName, filename))
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed writing checksum file")
 	}
 
 	return nil
@@ -147,12 +148,12 @@ func (e *Encrypter) splitAndSaveKey(masterKey []byte) error {
 
 	parts, err := sss.Split(masterKey, e.Parts, e.Threshold)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed splitting masterkey")
 	}
 
 	images, err := e.getImages(len(parts))
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed getting images")
 	}
 
 	if len(images) == 0 {
@@ -161,7 +162,7 @@ func (e *Encrypter) splitAndSaveKey(masterKey []byte) error {
 
 	err = e.saveKeysIntoImages(parts, images)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed saving keys into images")
 	}
 
 	return nil
@@ -172,7 +173,7 @@ func (e *Encrypter) getImages(count int) ([]string, error) {
 
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "failed reading folder '%s'", dir)
 	}
 
 	images := make([]string, 0, count)
@@ -209,7 +210,7 @@ func (e *Encrypter) saveKeysIntoImages(parts []sss.Part, images []string) error 
 		// write .key file
 		err := file.WriteKey(part.Bytes(), partialKeyFilename)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "failed writing key file '%s'", partialKeyFilename)
 		}
 
 		// if the images are available hide the key inside them
@@ -218,12 +219,12 @@ func (e *Encrypter) saveKeysIntoImages(parts []sss.Part, images []string) error 
 
 			err := image.EncodeSecretFromFile(part.Bytes(), images[i], imageOutName)
 			if err != nil {
-				return err
+				return errors.Wrapf(err, "failed encoding secret into image file '%s'", imageOutName)
 			}
 
 			err = file.WriteFileChecksum(imageOutName)
 			if err != nil {
-				return err
+				return errors.Wrapf(err, "failed writing checksum file '%s'", imageOutName)
 			}
 		}
 	}
