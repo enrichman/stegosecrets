@@ -3,8 +3,6 @@ package image
 import (
 	"bufio"
 	"bytes"
-	"crypto/sha256"
-	"fmt"
 	"image"
 	_ "image/jpeg" // enable decoding for jpeg images.
 	_ "image/png"  // enable decoding for png images.
@@ -12,37 +10,8 @@ import (
 	"os"
 
 	"github.com/auyer/steganography"
-	"github.com/enrichman/stegosecrets/pkg/file"
 	"github.com/pkg/errors"
 )
-
-func EncodeSecretFromFileWithChecksum(secret []byte, inputFile, outputFile string) error {
-	err := EncodeSecretFromFile(secret, inputFile, outputFile)
-	if err != nil {
-		return errors.Wrap(err, "failed encoding secret from file")
-	}
-
-	outputImageFile, err := os.Open(outputFile)
-	if err != nil {
-		return errors.Wrapf(err, "failed opening output file '%s'", outputFile)
-	}
-	defer outputImageFile.Close()
-
-	h := sha256.New()
-	if _, err := io.Copy(h, outputImageFile); err != nil {
-		return errors.Wrapf(err, "failed copying hash of output file '%s'", outputFile)
-	}
-
-	checksum := fmt.Sprintf("%x\n", h.Sum(nil))
-	checksumFilename := fmt.Sprintf("%s.checksum", outputFile)
-
-	err = file.WriteFile([]byte(checksum), checksumFilename)
-	if err != nil {
-		return errors.Wrapf(err, "failed writing checksum file '%s'", checksumFilename)
-	}
-
-	return nil
-}
 
 func EncodeSecretFromFile(secret []byte, inputFile, outputFile string) error {
 	inputImageFile, err := os.Open(inputFile)
