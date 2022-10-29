@@ -1,6 +1,6 @@
 module github.com/enrichman/stegosecrets
 
-go 1.18
+go 1.19
 
 require (
 	github.com/auyer/steganography v1.0.1
