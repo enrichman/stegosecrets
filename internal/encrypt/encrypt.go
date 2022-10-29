@@ -16,6 +16,8 @@ import (
 type Encrypter struct {
 	Parts     int
 	Threshold int
+	OutputDir string
+	ImagesDir string
 
 	Logger log.Logger
 }
@@ -62,6 +64,36 @@ func WithThreshold(threshold int) OptFunc {
 	}
 }
 
+func WithOutputDir(outputDir string) OptFunc {
+	return func(e *Encrypter) error {
+		absDir, err := filepath.Abs(outputDir)
+		if err != nil {
+			return errors.Wrap(err, "error getting absolute path for output directory")
+		}
+
+		if err := os.MkdirAll(absDir, 0o744); err != nil {
+			return errors.Wrap(err, "failed creating output filede")
+		}
+
+		e.OutputDir = absDir
+
+		return nil
+	}
+}
+
+func WithImagesDir(imagesDir string) OptFunc {
+	return func(e *Encrypter) error {
+		absDir, err := filepath.Abs(imagesDir)
+		if err != nil {
+			return errors.Wrap(err, "error getting absolute path for images directory")
+		}
+
+		e.ImagesDir = absDir
+
+		return nil
+	}
+}
+
 func (e *Encrypter) Encrypt(reader io.Reader, filename string) error {
 	e.Logger.Print(fmt.Sprintf("Encrypting '%s'", filename))
 
@@ -93,19 +125,13 @@ func (e *Encrypter) Encrypt(reader io.Reader, filename string) error {
 	return nil
 }
 
-const outDirName = "out"
-
 func (e *Encrypter) generateAndSaveMasterKey(filename string) ([]byte, error) {
 	masterKey, err := sss.GenerateMasterKey()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed generating master key")
 	}
 
-	if err := os.MkdirAll(outDirName, 0o744); err != nil {
-		return nil, errors.Wrapf(err, "failed creatind folder '%s'", outDirName)
-	}
-
-	err = file.WriteKey(masterKey, fmt.Sprintf("%s/%s.enc", outDirName, filename))
+	err = file.WriteKey(masterKey, filepath.Join(e.OutputDir, fmt.Sprintf("%s.enc", filename)))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed writing key file")
 	}
@@ -119,8 +145,7 @@ func (e *Encrypter) encryptAndSaveMessage(masterKey []byte, reader io.Reader, fi
 		return errors.Wrap(err, "failed reading message")
 	}
 
-	// FIX? is this a copy/paste bug?
-	err = file.WriteChecksum(message, fmt.Sprintf("%s/%s.enc", outDirName, filename))
+	err = file.WriteChecksum(message, filepath.Join(e.OutputDir, filename))
 	if err != nil {
 		return errors.Wrap(err, "failed writing checksum file of original message")
 	}
@@ -130,12 +155,14 @@ func (e *Encrypter) encryptAndSaveMessage(masterKey []byte, reader io.Reader, fi
 		return errors.Wrap(err, "failed encrypting message")
 	}
 
-	err = file.WriteFile(encryptedMessage, fmt.Sprintf("%s/%s.enc", outDirName, filename))
+	encryptedFilename := filepath.Join(e.OutputDir, fmt.Sprintf("%s.enc", filename))
+
+	err = file.WriteFile(encryptedMessage, encryptedFilename)
 	if err != nil {
 		return errors.Wrap(err, "failed writing encoded file")
 	}
 
-	err = file.WriteChecksum(encryptedMessage, fmt.Sprintf("%s/%s.enc", outDirName, filename))
+	err = file.WriteChecksum(encryptedMessage, encryptedFilename)
 	if err != nil {
 		return errors.Wrap(err, "failed writing checksum file")
 	}
@@ -153,7 +180,7 @@ func (e *Encrypter) splitAndSaveKey(masterKey []byte) error {
 
 	images, err := e.getImages(len(parts))
 	if err != nil {
-		return errors.Wrap(err, "failed getting images")
+		e.Logger.Print("failed getting images")
 	}
 
 	if len(images) == 0 {
@@ -169,11 +196,9 @@ func (e *Encrypter) splitAndSaveKey(masterKey []byte) error {
 }
 
 func (e *Encrypter) getImages(count int) ([]string, error) {
-	dir := "images"
-
-	files, err := os.ReadDir(dir)
+	files, err := os.ReadDir(e.ImagesDir)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed reading folder '%s'", dir)
+		return nil, errors.Wrapf(err, "failed reading images folder '%s'", e.ImagesDir)
 	}
 
 	images := make([]string, 0, count)
@@ -181,7 +206,7 @@ func (e *Encrypter) getImages(count int) ([]string, error) {
 	for _, file := range files {
 		switch filepath.Ext(file.Name()) {
 		case ".jpg", ".jpeg", ".png":
-			images = append(images, filepath.Join(dir, file.Name()))
+			images = append(images, filepath.Join(e.ImagesDir, file.Name()))
 		}
 
 		if len(images) >= count {
@@ -192,7 +217,7 @@ func (e *Encrypter) getImages(count int) ([]string, error) {
 	// TODO we can improve this
 	lenImages := len(images)
 	if lenImages == 0 {
-		return nil, errors.Errorf("no image files in %s dir: run 'stego images' to get some random pics", dir)
+		return nil, errors.Errorf("no image files in %s dir: run 'stego images' to get some random pics", e.ImagesDir)
 	}
 
 	for lenImages < count {
@@ -205,7 +230,7 @@ func (e *Encrypter) getImages(count int) ([]string, error) {
 
 func (e *Encrypter) saveKeysIntoImages(parts []sss.Part, images []string) error {
 	for i, part := range parts {
-		partialKeyFilename := fmt.Sprintf("%s/%d", outDirName, i+1)
+		partialKeyFilename := filepath.Join(e.OutputDir, fmt.Sprintf("%03d", i+1))
 
 		// write .key file
 		err := file.WriteKey(part.Bytes(), partialKeyFilename)
@@ -215,7 +240,7 @@ func (e *Encrypter) saveKeysIntoImages(parts []sss.Part, images []string) error 
 
 		// if the images are available hide the key inside them
 		if len(images) > 0 {
-			imageOutName := fmt.Sprintf("%s%s", partialKeyFilename, filepath.Ext(images[i]))
+			imageOutName := partialKeyFilename + filepath.Ext(images[i])
 
 			err := image.EncodeSecretFromFile(part.Bytes(), images[i], imageOutName)
 			if err != nil {

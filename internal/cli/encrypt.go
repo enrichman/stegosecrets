@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"path/filepath"
 
 	"github.com/enrichman/stegosecrets/internal/encrypt"
 	"github.com/enrichman/stegosecrets/internal/log"
@@ -15,6 +16,7 @@ var (
 	keyParts      int
 	keyThreshold  int
 	outputDir     string
+	imagesDir     string
 )
 
 func newEncryptCmd() *cobra.Command {
@@ -28,7 +30,8 @@ func newEncryptCmd() *cobra.Command {
 	encryptCmd.Flags().StringVarP(&cleartextFile, "file", "f", "", "file")
 	encryptCmd.Flags().IntVarP(&keyParts, "parts", "p", 0, "parts")
 	encryptCmd.Flags().IntVarP(&keyThreshold, "threshold", "t", 0, "threshold")
-	encryptCmd.Flags().StringVarP(&outputDir, "output", "o", "", "output dir")
+	encryptCmd.Flags().StringVarP(&outputDir, "output", "o", "out", "output dir")
+	encryptCmd.Flags().StringVarP(&imagesDir, "images", "i", "images", "images dir")
 
 	return encryptCmd
 }
@@ -37,6 +40,8 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 	encrypter, err := encrypt.NewEncrypter(
 		encrypt.WithParts(keyParts),
 		encrypt.WithThreshold(keyThreshold),
+		encrypt.WithOutputDir(outputDir),
+		encrypt.WithImagesDir(imagesDir),
 	)
 	if err != nil {
 		return errors.Wrap(err, "failed creating encrypter")
@@ -49,11 +54,13 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	var toEncrypt []byte
+
 	if cleartextFile != "" {
 		toEncrypt, err = file.ReadFile(cleartextFile)
+		cleartextFile = filepath.Base(cleartextFile)
 	} else {
-		cleartextFile = "secret.enc"
 		toEncrypt, err = getInputFromStdin()
+		cleartextFile = "secret"
 	}
 
 	if err != nil {
