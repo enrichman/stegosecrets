@@ -1,9 +1,11 @@
 package decrypt
 
 import (
+	"os"
 	"strings"
 
 	"github.com/enrichman/stegosecrets/pkg/file"
+	"github.com/enrichman/stegosecrets/pkg/image"
 	sss "github.com/enrichman/stegosecrets/pkg/stego"
 	"github.com/pkg/errors"
 )
@@ -69,10 +71,15 @@ func WithPartialKeyFile(filename string) OptFunc {
 	}
 }
 
-// TODO fix.
 func WithPartialKeyImageFile(filename string) OptFunc {
 	return func(d *Decrypter) error {
-		partialKey, err := file.ReadKey(filename)
+		file, err := os.Open(filename)
+		if err != nil {
+			return errors.Wrapf(err, "failed opening file '%s'", filename)
+		}
+		defer file.Close()
+
+		partialKey, err := image.DecodeSecret(file)
 		if err != nil {
 			return errors.Wrap(err, "failed reading partial key image file")
 		}
