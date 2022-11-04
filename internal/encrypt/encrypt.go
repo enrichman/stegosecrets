@@ -1,6 +1,7 @@
 package encrypt
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io"
 	"os"
@@ -95,24 +96,22 @@ func WithImagesDir(imagesDir string) OptFunc {
 }
 
 func (e *Encrypter) Encrypt(reader io.Reader, filename string) error {
-	e.Logger.Print(fmt.Sprintf("Encrypting '%s'", filename))
-
-	e.Logger.Debug("generateAndSaveMasterKey")
+	e.Logger.Print(fmt.Sprintf("🔒 Encrypting '%s'", filename))
 
 	masterKey, err := e.generateAndSaveMasterKey(filename)
 	if err != nil {
 		return errors.Wrapf(err, "failed generating and saving master key '%s'", filename)
 	}
 
-	e.Logger.Debug("encryptAndSaveMessage")
+	if e.Parts <= 1 {
+		e.Logger.Print("No parts provided. Only the master-key will be generated.")
+	}
+
+	e.Logger.Debug("Generated master-key:", base64.StdEncoding.EncodeToString(masterKey))
 
 	err = e.encryptAndSaveMessage(masterKey, reader, filename)
 	if err != nil {
 		return errors.Wrapf(err, "failed encrypting and saving message '%s'", filename)
-	}
-
-	if e.Parts <= 1 {
-		e.Logger.Print("No parts provided. Only the master-key will be generated.")
 	}
 
 	if e.Parts > 1 {
@@ -121,6 +120,8 @@ func (e *Encrypter) Encrypt(reader io.Reader, filename string) error {
 			return errors.Wrap(err, "failed splitting and saving master key")
 		}
 	}
+
+	e.Logger.Print("Encrypted files and keys saved to:", e.OutputDir)
 
 	return nil
 }
@@ -131,7 +132,9 @@ func (e *Encrypter) generateAndSaveMasterKey(filename string) ([]byte, error) {
 		return nil, errors.Wrap(err, "failed generating master key")
 	}
 
-	err = file.WriteKey(masterKey, filepath.Join(e.OutputDir, fmt.Sprintf("%s.enc", filename)))
+	encFilename := filepath.Join(e.OutputDir, fmt.Sprintf("%s.enc", filename))
+
+	err = file.WriteKey(e.Logger, masterKey, encFilename)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed writing key file")
 	}
@@ -145,7 +148,7 @@ func (e *Encrypter) encryptAndSaveMessage(masterKey []byte, reader io.Reader, fi
 		return errors.Wrap(err, "failed reading message")
 	}
 
-	err = file.WriteChecksum(message, filepath.Join(e.OutputDir, filename))
+	err = file.WriteChecksum(e.Logger, message, filepath.Join(e.OutputDir, filename))
 	if err != nil {
 		return errors.Wrap(err, "failed writing checksum file of original message")
 	}
@@ -157,12 +160,12 @@ func (e *Encrypter) encryptAndSaveMessage(masterKey []byte, reader io.Reader, fi
 
 	encryptedFilename := filepath.Join(e.OutputDir, fmt.Sprintf("%s.enc", filename))
 
-	err = file.WriteFile(encryptedMessage, encryptedFilename)
+	err = file.WriteFile(e.Logger, encryptedMessage, encryptedFilename)
 	if err != nil {
 		return errors.Wrap(err, "failed writing encoded file")
 	}
 
-	err = file.WriteChecksum(encryptedMessage, encryptedFilename)
+	err = file.WriteChecksum(e.Logger, encryptedMessage, encryptedFilename)
 	if err != nil {
 		return errors.Wrap(err, "failed writing checksum file")
 	}
@@ -178,13 +181,15 @@ func (e *Encrypter) splitAndSaveKey(masterKey []byte) error {
 		return errors.Wrap(err, "failed splitting masterkey")
 	}
 
+	e.Logger.Debug("Partial keys:")
+
+	for i, p := range parts {
+		e.Logger.Debug(fmt.Sprintf("%d) %s", i+1, p.Base64()))
+	}
+
 	images, err := e.getImages(len(parts))
 	if err != nil {
 		e.Logger.Print("failed getting images")
-	}
-
-	if len(images) == 0 {
-		e.Logger.Print("No images found.")
 	}
 
 	err = e.saveKeysIntoImages(parts, images)
@@ -229,11 +234,17 @@ func (e *Encrypter) getImages(count int) ([]string, error) {
 }
 
 func (e *Encrypter) saveKeysIntoImages(parts []sss.Part, images []string) error {
+	if len(images) == 0 {
+		e.Logger.Print("No images found.")
+	}
+
 	for i, part := range parts {
 		partialKeyFilename := filepath.Join(e.OutputDir, fmt.Sprintf("%03d", i+1))
 
+		e.Logger.Print(fmt.Sprintf("🔑 Writing partial key %03d", i+1))
+
 		// write .key file
-		err := file.WriteKey(part.Bytes(), partialKeyFilename)
+		err := file.WriteKey(e.Logger, part.Bytes(), partialKeyFilename)
 		if err != nil {
 			return errors.Wrapf(err, "failed writing key file '%s'", partialKeyFilename)
 		}
@@ -242,12 +253,16 @@ func (e *Encrypter) saveKeysIntoImages(parts []sss.Part, images []string) error 
 		if len(images) > 0 {
 			imageOutName := partialKeyFilename + filepath.Ext(images[i])
 
+			e.Logger.Debug(fmt.Sprintf("Writing partial key %03d into image", i+1))
+
 			err := image.EncodeSecretFromFile(part.Bytes(), images[i], imageOutName)
 			if err != nil {
 				return errors.Wrapf(err, "failed encoding secret into image file '%s'", imageOutName)
 			}
 
-			err = file.WriteFileChecksum(imageOutName)
+			e.Logger.Debug(fmt.Sprintf("Writing partial key %03d checksum", i+1))
+
+			err = file.WriteFileChecksum(e.Logger, imageOutName)
 			if err != nil {
 				return errors.Wrapf(err, "failed writing checksum file '%s'", imageOutName)
 			}

@@ -69,7 +69,7 @@ func runImagesCmd(cmd *cobra.Command, args []string) error {
 
 		imageFilename := fmt.Sprintf("%s/%03d.jpg", output, i)
 
-		err = file.WriteFile(bb, imageFilename)
+		err = file.WriteFile(nil, bb, imageFilename)
 		if err != nil {
 			return errors.Wrapf(err, "failed writing file '%s'", imageFilename)
 		}

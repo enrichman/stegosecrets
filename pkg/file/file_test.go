@@ -17,7 +17,7 @@ func Test_WriteFileChecksum(t *testing.T) {
 	err := os.WriteFile(original, []byte("content"), 0o600)
 	require.NoError(t, err)
 
-	err = file.WriteFileChecksum(original)
+	err = file.WriteFileChecksum(nil, original)
 	require.NoError(t, err)
 
 	checksum, err := os.ReadFile(fmt.Sprintf("%s.checksum", original))
@@ -32,7 +32,7 @@ func Test_WriteKey(t *testing.T) {
 	keyFile := path.Join(tmpDir, "file")
 
 	expectedKey := []byte("test")
-	err := file.WriteKey(expectedKey, keyFile)
+	err := file.WriteKey(nil, expectedKey, keyFile)
 	require.NoError(t, err)
 
 	key, err := file.ReadKey(keyFile + ".key")

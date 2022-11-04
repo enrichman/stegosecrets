@@ -1,9 +1,13 @@
 package decrypt
 
 import (
+	"fmt"
+	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/enrichman/stegosecrets/internal/log"
 	"github.com/enrichman/stegosecrets/pkg/file"
 	"github.com/enrichman/stegosecrets/pkg/image"
 	sss "github.com/enrichman/stegosecrets/pkg/stego"
@@ -11,6 +15,8 @@ import (
 )
 
 type Decrypter struct {
+	Logger log.Logger
+
 	MasterKey []byte
 	Parts     []sss.Part
 }
@@ -90,19 +96,34 @@ func WithPartialKeyImageFile(filename string) OptFunc {
 	}
 }
 
-func (d *Decrypter) Decrypt(content []byte, filename string) error {
-	var (
-		key []byte
-		err error
-	)
+func (d *Decrypter) Decrypt(filename string) error {
+	d.Logger.Print(fmt.Sprintf("Decrypting '%s'", filepath.Base(filename)))
+
+	encryptedFile, err := os.Open(filename)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return errors.Wrap(err, "file not found")
+		}
+
+		return errors.Wrapf(err, "failed opening file '%s'", filename)
+	}
+
+	var key []byte
 
 	if len(d.MasterKey) > 0 {
+		d.Logger.Print("Decrypting with master-key")
 		key = d.MasterKey
 	} else {
+		d.Logger.Print("Decrypting with partial keys")
 		key, err = sss.Combine(d.Parts)
 		if err != nil {
 			return errors.Wrap(err, "failed combining parts")
 		}
+	}
+
+	content, err := io.ReadAll(encryptedFile)
+	if err != nil {
+		return errors.Wrap(err, "failed to read content")
 	}
 
 	cleartext, err := sss.Decrypt(key, content)
@@ -111,10 +132,14 @@ func (d *Decrypter) Decrypt(content []byte, filename string) error {
 	}
 
 	// TODO check checksum
-	err = file.WriteFile(cleartext, strings.TrimSuffix(filename, ".enc"))
+	outputFile := strings.TrimSuffix(filename, ".enc")
+
+	err = file.WriteFile(d.Logger, cleartext, outputFile)
 	if err != nil {
 		return errors.Wrap(err, "failed writing decoded file")
 	}
+
+	d.Logger.Print("Decrypted file saved to:", outputFile)
 
 	return nil
 }

@@ -2,7 +2,7 @@ package cli
 
 import (
 	"github.com/enrichman/stegosecrets/internal/decrypt"
-	"github.com/enrichman/stegosecrets/pkg/file"
+	"github.com/enrichman/stegosecrets/internal/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -31,17 +31,24 @@ If provided keys or images will be ignored`)
 }
 
 func runDecryptCmd(cmd *cobra.Command, args []string) error {
+	var logger log.Logger
+	if silent {
+		logger = &log.SilentLogger{}
+	} else {
+		logger = log.NewSimpleLogger(cmd.OutOrStdout(), verbose)
+	}
+
+	if encryptedFile == "" {
+		return errors.New("missing file to decrypt. Use -f/--file flag")
+	}
+
 	decrypter, err := buildDecrypter()
 	if err != nil {
 		return errors.Wrap(err, "failed building decrypter")
 	}
+	decrypter.Logger = logger
 
-	encryptedBytes, err := file.ReadFile(encryptedFile)
-	if err != nil {
-		return errors.Wrapf(err, "failed reading file '%s'", encryptedFile)
-	}
-
-	err = decrypter.Decrypt(encryptedBytes, encryptedFile)
+	err = decrypter.Decrypt(encryptedFile)
 	if err != nil {
 		return errors.Wrapf(err, "failed decrypting file '%s'", encryptedFile)
 	}
