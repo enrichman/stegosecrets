@@ -30,8 +30,11 @@ func TestEncryptCmd_NoInput(t *testing.T) {
 
 	rootCmd.SetArgs([]string{"encrypt"})
 
+	assert.NoDirExists(t, "out")
+
 	err := rootCmd.Execute()
 	assert.NotNil(t, err)
+	assert.NoDirExists(t, "out")
 }
 
 func TestEncryptCmd_Stdin(t *testing.T) {

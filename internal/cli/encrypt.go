@@ -37,23 +37,17 @@ func newEncryptCmd() *cobra.Command {
 }
 
 func runEncryptCmd(cmd *cobra.Command, args []string) error {
-	encrypter, err := encrypt.NewEncrypter(
-		encrypt.WithParts(keyParts),
-		encrypt.WithThreshold(keyThreshold),
-		encrypt.WithOutputDir(outputDir),
-		encrypt.WithImagesDir(imagesDir),
-	)
-	if err != nil {
-		return errors.Wrap(err, "failed creating encrypter")
-	}
-
+	var logger log.Logger
 	if silent {
-		encrypter.Logger = &log.SilentLogger{}
+		logger = &log.SilentLogger{}
 	} else {
-		encrypter.Logger = log.NewSimpleLogger(cmd.OutOrStdout(), verbose)
+		logger = log.NewSimpleLogger(cmd.OutOrStdout(), verbose)
 	}
 
-	var toEncrypt []byte
+	var (
+		toEncrypt []byte
+		err       error
+	)
 
 	if cleartextFile != "" {
 		toEncrypt, err = file.ReadFile(cleartextFile)
@@ -66,6 +60,18 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.Wrapf(err, "failed getting input to encrypt '%s'", cleartextFile)
 	}
+
+	encrypter, err := encrypt.NewEncrypter(
+		encrypt.WithParts(keyParts),
+		encrypt.WithThreshold(keyThreshold),
+		encrypt.WithOutputDir(outputDir),
+		encrypt.WithImagesDir(imagesDir),
+	)
+	if err != nil {
+		return errors.Wrap(err, "failed creating encrypter")
+	}
+
+	encrypter.Logger = logger
 
 	err = encrypter.Encrypt(bytes.NewReader(toEncrypt), cleartextFile)
 	if err != nil {
