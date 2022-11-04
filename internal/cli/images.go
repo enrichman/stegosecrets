@@ -23,15 +23,15 @@ var (
 func newImagesCmd() *cobra.Command {
 	imagesCmd := &cobra.Command{
 		Use:   "images",
-		Short: "images",
-		Long:  ``,
+		Short: "Download some stock images that can be used to hide the keys",
 		RunE:  runImagesCmd,
 	}
 
-	imagesCmd.Flags().Uint16Var(&width, "width", 900, "width")
-	imagesCmd.Flags().Uint16Var(&height, "height", 600, "height")
-	imagesCmd.Flags().StringVarP(&output, "output", "o", "images", "output directory")
-	imagesCmd.Flags().Uint16VarP(&imagesNum, "num", "n", 10, "number of images")
+	imagesCmd.Flags().Uint16Var(&width, "width", 900, "The width of the images")
+	imagesCmd.Flags().Uint16Var(&height, "height", 600, "The height of the images")
+	imagesCmd.Flags().StringVarP(&output, "output", "o", "images",
+		"The output directory where the images will be downloaded")
+	imagesCmd.Flags().Uint16VarP(&imagesNum, "num", "n", 10, "The number of images to download")
 
 	return imagesCmd
 }

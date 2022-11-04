@@ -22,16 +22,22 @@ var (
 func newEncryptCmd() *cobra.Command {
 	encryptCmd := &cobra.Command{
 		Use:   "encrypt",
-		Short: "encrypt",
-		Long:  ``,
+		Short: "Encrypt a file/message",
 		RunE:  runEncryptCmd,
 	}
 
-	encryptCmd.Flags().StringVarP(&cleartextFile, "file", "f", "", "file")
-	encryptCmd.Flags().IntVarP(&keyParts, "parts", "p", 0, "parts")
-	encryptCmd.Flags().IntVarP(&keyThreshold, "threshold", "t", 0, "threshold")
-	encryptCmd.Flags().StringVarP(&outputDir, "output", "o", "out", "output dir")
-	encryptCmd.Flags().StringVarP(&imagesDir, "images", "i", "images", "images dir")
+	encryptCmd.Flags().StringVarP(&cleartextFile, "file", "f", "",
+		`The file to encrypt. If not specified a message from STDIN will be read.`)
+	encryptCmd.Flags().IntVarP(&keyParts, "parts", "p", 0,
+		`The number of parts (partial keys) in which the secret will be splitted.
+If empty only the master-key will be generated.`)
+	encryptCmd.Flags().IntVarP(&keyThreshold, "threshold", "t", 0,
+		`The minimum number of parts (partial keys) needed to decrypt the secret`)
+	encryptCmd.Flags().StringVarP(&outputDir, "output", "o", "out",
+		`The output directory where the encoded secret and keys/images will be saved.`)
+	encryptCmd.Flags().StringVarP(&imagesDir, "images", "i", "images",
+		`The directory where to look for the images where the partial keys will be hidden.
+If empty no images will be generated.`)
 
 	return encryptCmd
 }
