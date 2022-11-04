@@ -75,3 +75,30 @@ func Benchmark_Decrypt(b *testing.B) {
 		}
 	}
 }
+
+func FuzzEncryptDecrypt(f *testing.F) {
+	kk, err := stego.GenerateMasterKey()
+	require.NoError(f, err)
+
+	f.Add(kk, []byte(`message`))
+	f.Fuzz(func(t *testing.T, key []byte, message []byte) {
+		encrypted, err := stego.Encrypt(key, message)
+		if err != nil {
+			require.Nil(t, encrypted)
+
+			return
+		}
+
+		require.NoError(t, err)
+
+		decrypted, err := stego.Decrypt(key, encrypted)
+		if err != nil {
+			require.Nil(t, decrypted)
+
+			return
+		}
+
+		require.NoError(t, err)
+		require.Equal(t, message, decrypted)
+	})
+}
