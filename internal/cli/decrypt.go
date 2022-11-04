@@ -46,6 +46,7 @@ func runDecryptCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "failed building decrypter")
 	}
+
 	decrypter.Logger = logger
 
 	err = decrypter.Decrypt(encryptedFile)
