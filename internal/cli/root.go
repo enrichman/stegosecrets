@@ -19,8 +19,12 @@ var (
 func NewRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   AppName,
-		Short: "stego",
-		Long:  ``,
+		Short: `Stego helps you share a secret among other trusted peers.`,
+		Long: `Stego helps you share a secret among other trusted peers, 
+keeping a minimum threshold of keys to recover the original one.
+The partial keys will also be hidden inside images, adding an additional layer of "security".`,
+		SilenceUsage:  true,
+		SilenceErrors: true,
 	}
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")

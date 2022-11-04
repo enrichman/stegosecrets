@@ -50,6 +50,10 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 		logger = log.NewSimpleLogger(cmd.OutOrStdout(), verbose)
 	}
 
+	if keyThreshold > keyParts {
+		return errors.Errorf("threshold %d cannot exceed the parts %d", keyThreshold, keyParts)
+	}
+
 	var (
 		toEncrypt []byte
 		err       error
