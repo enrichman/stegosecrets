@@ -50,7 +50,7 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 	if silent {
 		encrypter.Logger = &log.SilentLogger{}
 	} else {
-		encrypter.Logger = log.NewSimpleLogger(verbose)
+		encrypter.Logger = log.NewSimpleLogger(cmd.OutOrStdout(), verbose)
 	}
 
 	var toEncrypt []byte
@@ -59,7 +59,7 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 		toEncrypt, err = file.ReadFile(cleartextFile)
 		cleartextFile = filepath.Base(cleartextFile)
 	} else {
-		toEncrypt, err = getInputFromStdin()
+		toEncrypt, err = getInputFromStdin(cmd)
 		cleartextFile = "secret"
 	}
 

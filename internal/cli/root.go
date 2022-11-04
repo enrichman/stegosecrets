@@ -3,7 +3,6 @@ package cli
 import (
 	"bufio"
 	"fmt"
-	"os"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -37,10 +36,10 @@ func NewRootCmd() *cobra.Command {
 	return rootCmd
 }
 
-func getInputFromStdin() ([]byte, error) {
-	fmt.Print("Enter text: ")
+func getInputFromStdin(cmd *cobra.Command) ([]byte, error) {
+	fmt.Fprintf(cmd.OutOrStdout(), "Enter text: ")
 
-	reader := bufio.NewReader(os.Stdin)
+	reader := bufio.NewReader(cmd.InOrStdin())
 
 	text, err := reader.ReadBytes('\n')
 	if err != nil {
