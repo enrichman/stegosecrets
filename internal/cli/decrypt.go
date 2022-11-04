@@ -17,15 +17,15 @@ var (
 func newDecryptCmd() *cobra.Command {
 	decryptCmd := &cobra.Command{
 		Use:   "decrypt",
-		Short: "decrypt",
-		Long:  ``,
+		Short: "Decrypt a file with the provided master-key, keys or images",
 		RunE:  runDecryptCmd,
 	}
 
-	decryptCmd.Flags().StringVarP(&encryptedFile, "file", "f", "", "file")
-	decryptCmd.Flags().StringVar(&masterKeyFile, "master-key", "", "masterkey")
-	decryptCmd.Flags().StringArrayVar(&keyFiles, "key", []string{}, "keys")
-	decryptCmd.Flags().StringArrayVar(&imageFiles, "img", []string{}, "images")
+	decryptCmd.Flags().StringVarP(&encryptedFile, "file", "f", "", "The file to decrypt")
+	decryptCmd.Flags().StringVar(&masterKeyFile, "master-key", "", `The master-key used to decrypt the file.
+If provided keys or images will be ignored`)
+	decryptCmd.Flags().StringArrayVar(&keyFiles, "key", []string{}, "The files containing the partial keys")
+	decryptCmd.Flags().StringArrayVar(&imageFiles, "img", []string{}, "The image files containing the hidden partial keys")
 
 	return decryptCmd
 }

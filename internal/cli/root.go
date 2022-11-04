@@ -23,8 +23,8 @@ func NewRootCmd() *cobra.Command {
 		Long:  ``,
 	}
 
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
-	rootCmd.PersistentFlags().BoolVarP(&silent, "silent", "s", false, "silent output")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
+	rootCmd.PersistentFlags().BoolVarP(&silent, "silent", "s", false, "Silent mode (disable output)")
 
 	rootCmd.AddCommand(
 		newEncryptCmd(),
