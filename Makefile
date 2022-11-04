@@ -3,3 +3,6 @@ build:
 
 test:
 	go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+lint:
+	golangci-lint run

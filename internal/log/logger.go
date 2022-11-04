@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"io"
 )
 
 type Logger interface {
@@ -10,20 +11,21 @@ type Logger interface {
 }
 
 type SimpleLogger struct {
+	writer       io.Writer
 	debugEnabled bool
 }
 
-func NewSimpleLogger(debug bool) *SimpleLogger {
-	return &SimpleLogger{debugEnabled: debug}
+func NewSimpleLogger(writer io.Writer, debug bool) *SimpleLogger {
+	return &SimpleLogger{writer: writer, debugEnabled: debug}
 }
 
 func (s *SimpleLogger) Print(a ...any) {
-	fmt.Println(a...)
+	fmt.Fprintln(s.writer, a...)
 }
 
 func (s *SimpleLogger) Debug(a ...any) {
 	if s.debugEnabled {
-		fmt.Println(a...)
+		fmt.Fprintln(s.writer, a...)
 	}
 }
 
