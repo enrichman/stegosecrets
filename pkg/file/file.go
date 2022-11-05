@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/enrichman/stegosecrets/internal/log"
 	"github.com/pkg/errors"
@@ -96,4 +97,32 @@ func ReadKey(filename string) ([]byte, error) {
 	}
 
 	return decodedKey, nil
+}
+
+func Check(filename, checksumFilename string) error {
+	content, err := ReadFile(filename)
+	if err != nil {
+		return err
+	}
+
+	h := sha256.New()
+
+	_, err = h.Write(content)
+	if err != nil {
+		return errors.Wrapf(err, "failed hashing content of '%s' file", filename)
+	}
+
+	checksumFileContent, err := ReadFile(checksumFilename)
+	if err != nil {
+		return err
+	}
+
+	checksumToVerify := strings.Split(string(checksumFileContent), "\t")[0]
+	checksumContent := fmt.Sprintf("%x", h.Sum(nil))
+
+	if checksumToVerify != checksumContent {
+		return errors.New("failed checksum verification")
+	}
+
+	return nil
 }

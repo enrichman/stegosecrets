@@ -13,12 +13,16 @@ type Part struct {
 	Content []byte
 }
 
-func NewPart(content []byte) Part {
+func NewPart(content []byte) (Part, error) {
+	if len(content) < 3 {
+		return Part{}, errors.New("invalid part: ot enough content bytes")
+	}
+
 	return Part{
 		Version: content[0],
 		Tag:     content[1],
 		Content: content[2:],
-	}
+	}, nil
 }
 
 func (p Part) Bytes() []byte {

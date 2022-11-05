@@ -71,7 +71,12 @@ func WithPartialKeyFile(filename string) OptFunc {
 			return errors.Wrap(err, "failed reading partial key file")
 		}
 
-		d.Parts = append(d.Parts, sss.NewPart(partialKey))
+		part, err := sss.NewPart(partialKey)
+		if err != nil {
+			return errors.Wrap(err, "failed creating part")
+		}
+
+		d.Parts = append(d.Parts, part)
 
 		return nil
 	}
@@ -90,7 +95,12 @@ func WithPartialKeyImageFile(filename string) OptFunc {
 			return errors.Wrap(err, "failed reading partial key image file")
 		}
 
-		d.Parts = append(d.Parts, sss.NewPart(partialKey))
+		part, err := sss.NewPart(partialKey)
+		if err != nil {
+			return errors.Wrap(err, "failed creating part")
+		}
+
+		d.Parts = append(d.Parts, part)
 
 		return nil
 	}

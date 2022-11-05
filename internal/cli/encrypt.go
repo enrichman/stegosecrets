@@ -43,13 +43,6 @@ If empty no images will be generated.`)
 }
 
 func runEncryptCmd(cmd *cobra.Command, args []string) error {
-	var logger log.Logger
-	if silent {
-		logger = &log.SilentLogger{}
-	} else {
-		logger = log.NewSimpleLogger(cmd.OutOrStdout(), verbose)
-	}
-
 	if keyThreshold > keyParts {
 		return errors.Errorf("threshold %d cannot exceed the parts %d", keyThreshold, keyParts)
 	}
@@ -71,17 +64,18 @@ func runEncryptCmd(cmd *cobra.Command, args []string) error {
 		return errors.Wrapf(err, "failed getting input to encrypt '%s'", cleartextFile)
 	}
 
+	logger := log.NewSimpleLogger(cmd.OutOrStdout(), log.NewLevel(silent, verbose))
+
 	encrypter, err := encrypt.NewEncrypter(
 		encrypt.WithParts(keyParts),
 		encrypt.WithThreshold(keyThreshold),
 		encrypt.WithOutputDir(outputDir),
 		encrypt.WithImagesDir(imagesDir),
+		encrypt.WithLogger(logger),
 	)
 	if err != nil {
 		return errors.Wrap(err, "failed creating encrypter")
 	}
-
-	encrypter.Logger = logger
 
 	err = encrypter.Encrypt(bytes.NewReader(toEncrypt), cleartextFile)
 	if err != nil {

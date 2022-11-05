@@ -31,13 +31,6 @@ If provided keys or images will be ignored`)
 }
 
 func runDecryptCmd(cmd *cobra.Command, args []string) error {
-	var logger log.Logger
-	if silent {
-		logger = &log.SilentLogger{}
-	} else {
-		logger = log.NewSimpleLogger(cmd.OutOrStdout(), verbose)
-	}
-
 	if encryptedFile == "" {
 		return errors.New("missing file to decrypt. Use -f/--file flag")
 	}
@@ -47,7 +40,8 @@ func runDecryptCmd(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "failed building decrypter")
 	}
 
-	decrypter.Logger = logger
+	loggerLevel := log.NewLevel(silent, verbose)
+	decrypter.Logger = log.NewSimpleLogger(cmd.OutOrStdout(), loggerLevel)
 
 	err = decrypter.Decrypt(encryptedFile)
 	if err != nil {

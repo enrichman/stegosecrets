@@ -95,6 +95,14 @@ func WithImagesDir(imagesDir string) OptFunc {
 	}
 }
 
+func WithLogger(logger log.Logger) OptFunc {
+	return func(e *Encrypter) error {
+		e.Logger = logger
+
+		return nil
+	}
+}
+
 func (e *Encrypter) Encrypt(reader io.Reader, filename string) error {
 	e.Logger.Print(fmt.Sprintf("🔒 Encrypting '%s'", filename))
 
