@@ -71,7 +71,7 @@ func WithPartialKeyFile(filename string) OptFunc {
 			return errors.Wrap(err, "failed reading partial key file")
 		}
 
-		part, err := sss.NewPart(partialKey)
+		part, err := sss.NewPartFromContent(partialKey)
 		if err != nil {
 			return errors.Wrap(err, "failed creating part")
 		}
@@ -95,7 +95,7 @@ func WithPartialKeyImageFile(filename string) OptFunc {
 			return errors.Wrap(err, "failed reading partial key image file")
 		}
 
-		part, err := sss.NewPart(partialKey)
+		part, err := sss.NewPartFromContent(partialKey)
 		if err != nil {
 			return errors.Wrap(err, "failed creating part")
 		}
@@ -108,6 +108,10 @@ func WithPartialKeyImageFile(filename string) OptFunc {
 
 func (d *Decrypter) Decrypt(filename string) error {
 	d.Logger.Print(fmt.Sprintf("Decrypting '%s'", filepath.Base(filename)))
+
+	if len(d.MasterKey) == 0 && len(d.Parts) < 2 {
+		return errors.New("at least a master-key or more than one part needs to be specified")
+	}
 
 	encryptedFile, err := os.Open(filename)
 	if err != nil {

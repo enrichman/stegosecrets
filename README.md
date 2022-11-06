@@ -22,12 +22,22 @@ The partial keys will also be hidden inside images, adding an additional layer o
 
 ## Quickstart
 
-TLDR. Go to the [usage](#usage) section for more details
+### Installation
+
+You can install the `stego` CLI with brew
+```bash
+brew install enrichman/tap/stegosecrets
+```
+or getting the [latest release](https://github.com/enrichman/stegosecrets/releases/latest), or building it from source.
+
+### Encrypt / Decrypt
+
+TLDR: go to the [usage](#usage) section for more details
 ```
 stego encrypt --file mysecret.txt --parts 5 --threshold 3
 ```
 ```
-stego decrypt --file mysecret.txt.enc --img 1.jpg --key 2.key --img 3.jpg
+stego decrypt --file mysecret.txt.enc --img 001.jpg --key 002.key --img 003.jpg
 ```
 
 ## How does it work?
@@ -79,16 +89,16 @@ mysecret.txt.enc
 mysecret.txt.enc.checksum
 mysecret.txt.key
 
-1.jpg
-1.jpg.checksum
-1.key
-2.jpg
-2.jpg.checksum
-2.key
+001.jpg
+001.jpg.checksum
+001.key
+002.jpg
+002.jpg.checksum
+002.key
 ...
-5.jpg
-5.jpg.checksum
-5.key
+005.jpg
+005.jpg.checksum
+005.key
 ```
 
 Main files:
@@ -117,7 +127,7 @@ mysecret.txt.enc: OK
 To decrypt a file just use enough keys and/or images:
 
 ```
-stego decrypt --file mysecret.txt.enc --key 1.key --key 2.key --img 3.jpg
+stego decrypt --file mysecret.txt.enc --key 001.key --key 002.key --img 003.jpg
 ```
 
 also the master key alone can be used to decrypt the file:

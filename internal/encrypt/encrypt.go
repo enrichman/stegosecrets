@@ -15,8 +15,8 @@ import (
 )
 
 type Encrypter struct {
-	Parts     int
-	Threshold int
+	Parts     uint8
+	Threshold uint8
 	OutputDir string
 	ImagesDir string
 
@@ -46,31 +46,16 @@ func NewEncrypter(opts ...OptFunc) (*Encrypter, error) {
 		}
 	}
 
-	if enc.Threshold > enc.Parts {
-		return nil, errors.Errorf("threshold %d cannot exceed the parts %d", enc.Threshold, enc.Parts)
-	}
-
 	return enc, nil
 }
 
-func WithParts(parts int) OptFunc {
+func WithPartsAndThreshold(parts, threshold uint8) OptFunc {
 	return func(e *Encrypter) error {
-		if parts < 0 || parts > 256 {
-			return errors.New("invalid parts")
+		if threshold > parts {
+			return errors.Errorf("threshold %d cannot exceed parts %d", threshold, parts)
 		}
 
 		e.Parts = parts
-
-		return nil
-	}
-}
-
-func WithThreshold(threshold int) OptFunc {
-	return func(e *Encrypter) error {
-		if threshold < 0 || threshold > 256 {
-			return errors.New("invalid threshold")
-		}
-
 		e.Threshold = threshold
 
 		return nil
