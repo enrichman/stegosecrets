@@ -16,8 +16,8 @@ import (
 
 func TestNewEncrypter_WithPartsThreshold(t *testing.T) {
 	type args struct {
-		parts     int
-		threshold int
+		parts     uint8
+		threshold uint8
 	}
 
 	tt := []struct {
@@ -32,20 +32,6 @@ func TestNewEncrypter_WithPartsThreshold(t *testing.T) {
 				threshold: 3,
 			},
 			wantErr: false,
-		},
-		{
-			name: "invalid threshold",
-			args: args{
-				threshold: -1,
-			},
-			wantErr: true,
-		},
-		{
-			name: "invalid parts",
-			args: args{
-				parts: 300,
-			},
-			wantErr: true,
 		},
 		{
 			name: "invalid threshold and parts",
@@ -69,8 +55,7 @@ func TestNewEncrypter_WithPartsThreshold(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			encrypter, err := encrypt.NewEncrypter(
-				encrypt.WithParts(tc.args.parts),
-				encrypt.WithThreshold(tc.args.threshold),
+				encrypt.WithPartsAndThreshold(tc.args.parts, tc.args.threshold),
 			)
 
 			if tc.wantErr {
@@ -128,8 +113,7 @@ func TestEncrypt(t *testing.T) {
 	assert.DirExists(t, tmpDir)
 
 	encrypter, err := encrypt.NewEncrypter(
-		encrypt.WithParts(5),
-		encrypt.WithThreshold(2),
+		encrypt.WithPartsAndThreshold(5, 2),
 		encrypt.WithOutputDir(tmpDir),
 		encrypt.WithImagesDir("../../test/assets/p5t3"),
 		encrypt.WithLogger(log.NewSimpleLogger(io.Discard, log.None)),

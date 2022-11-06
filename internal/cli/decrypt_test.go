@@ -43,7 +43,7 @@ func TestDecryptCmd(t *testing.T) {
 				"--key", testAssetsDir + "001.key",
 				"--key", testAssetsDir + "002.key",
 			},
-			wantCheckErr: true,
+			wantExecuteErr: true,
 		},
 		{
 			name: "decode with images",
