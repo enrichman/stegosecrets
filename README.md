@@ -5,6 +5,13 @@
 
 [![Lint Status](https://github.com/enrichman/stegosecrets/workflows/golangci-lint/badge.svg)](https://github.com/enrichman/stegosecrets/actions)
 [![CI Status](https://github.com/enrichman/stegosecrets/workflows/CI/badge.svg)](https://github.com/enrichman/stegosecrets/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/enrichman/stegosecrets)](https://goreportcard.com/report/github.com/enrichman/stegosecrets)
+[![Coverage](https://img.shields.io/codecov/c/github/enrichman/stegosecrets?logo=codecov)](https://img.shields.io/codecov/c/github/enrichman/stegosecrets?logo=codecov)  
+[![License](https://img.shields.io/github/license/enrichman/stegosecrets)](https://img.shields.io/github/license/enrichman/stegosecrets)
+[![Go](https://img.shields.io/github/go-mod/go-version/enrichman/stegosecrets)](https://img.shields.io/github/go-mod/go-version/enrichman/stegosecrets)
+[![Release](https://img.shields.io/github/v/release/enrichman/stegosecrets)](https://img.shields.io/github/v/release/enrichman/stegosecrets)
+[![GoDoc](https://godoc.org/github.com/enrichman/stegosecrets?status.svg)](https://godoc.org/github.com/enrichman/stegosecrets)
+
 
 StegoSecretS combines [AES-256](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) encryption, [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing) and [steganography](https://en.wikipedia.org/wiki/Steganography)!
 
