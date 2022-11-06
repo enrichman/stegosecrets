@@ -1,6 +1,7 @@
 before:
   hooks:
     - go mod tidy
+
 builds:
   - main: ./cmd/stego
     binary: stego
@@ -12,6 +13,7 @@ builds:
       - linux
       - windows
       - darwin
+
 archives:
   - replacements:
       darwin: Darwin
@@ -19,13 +21,36 @@ archives:
       windows: Windows
       386: i386
       amd64: x86_64
+
 checksum:
   name_template: "checksums.txt"
+
 snapshot:
   name_template: "{{ incpatch .Version }}-snapshot"
+
 changelog:
   sort: asc
   filters:
     exclude:
       - "^docs:"
       - "^test:"
+
+brews:
+  - name: stegosecrets
+    description: "CLI for StegoSecretS. Encrypt and share secrets among trusted peers with AES-256, SSS and steganography."
+    homepage: "https://github.com/enrichman/stegosecrets"
+    license: "MIT"
+
+    tap:
+      owner: enrichman
+      name: homebrew-tap
+      token: "{{ .Env.COMMITTER_TOKEN }}"
+
+    folder: Formula
+    url_template: "https://github.com/enrichman/stegosecrets/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+
+    test: |
+      output = shell_output("#{bin}/stego version 2>&1")
+      assert_match "stego version #{version}", output
+      output = shell_output("#{bin}/stego decrypt 2>&1")
+      assert_match "missing file to decrypt", output
