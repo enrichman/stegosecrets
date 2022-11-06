@@ -34,6 +34,18 @@ func NewEncrypter(opts ...OptFunc) (*Encrypter, error) {
 		}
 	}
 
+	if enc.OutputDir == "" {
+		if err := WithOutputDir("out")(enc); err != nil {
+			return nil, err
+		}
+	}
+
+	if enc.ImagesDir == "" {
+		if err := WithImagesDir("images")(enc); err != nil {
+			return nil, err
+		}
+	}
+
 	if enc.Threshold > enc.Parts {
 		return nil, errors.Errorf("threshold %d cannot exceed the parts %d", enc.Threshold, enc.Parts)
 	}
