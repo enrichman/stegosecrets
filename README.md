@@ -104,7 +104,7 @@ mysecret.txt.key
 Main files:
 - `mysecret.txt.checksum` is the sha256 checksum of the `mysecret.txt` file (used to check a successful decryption)
 - `mysecret.txt.enc` is the encrypted file
-- `mysecret.txt.enc.checksum` is the sha256 checksum of the `mysecret.txt`
+- `mysecret.txt.enc.checksum` is the sha256 checksum of the `mysecret.txt.enc`
 - `mysecret.txt.key` is the master key used to encrypt/decrypt the secret
 
 Partial files:
