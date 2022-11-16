@@ -219,23 +219,24 @@ func (e *Encrypter) getImages(count int) ([]string, error) {
 			images = append(images, filepath.Join(e.ImagesDir, file.Name()))
 		}
 
-		if len(images) >= count {
-			break
+		// if we have sufficient amount of images, we're done, early return
+		if len(images) == count {
+			return images, nil
 		}
 	}
 
-	// TODO we can improve this
-	lenImages := len(images)
-	if lenImages == 0 {
+	if len(images) == 0 {
 		return nil, errors.Errorf("no image files in %s dir: run 'stego images' to get some random pics", e.ImagesDir)
 	}
 
-	for lenImages < count {
-		images = append(images, images...)
-		lenImages = len(images)
+	// if we don't have sufficient amount of images, fill up with images we have
+	i := 0
+	for len(images) < count {
+		images = append(images, images[i])
+		i++
 	}
 
-	return images[:count], nil
+	return images, nil
 }
 
 func (e *Encrypter) saveKeysIntoImages(parts []sss.Part, images []string) error {
