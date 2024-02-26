@@ -1,5 +1,5 @@
-github.com/auyer/steganography v1.0.1 h1:b3zlDd9FXlAIr5Io9KyiLG1sinaW7Wk0gelpV+lxwWE=
-github.com/auyer/steganography v1.0.1/go.mod h1:Q2qN+f1ixaXnKTCT4xkSDCZ/5NiOpUeTgOCLwQdJD+A=
+github.com/auyer/steganography v1.0.2 h1:G5iZbX8QUvw+kCLyK+59hY8t/oSSpSS5yStIcPCGIgU=
+github.com/auyer/steganography v1.0.2/go.mod h1:Q2qN+f1ixaXnKTCT4xkSDCZ/5NiOpUeTgOCLwQdJD+A=
 github.com/corvus-ch/shamir v1.0.1 h1:NaynWw+QQBOYmd/dWmc9xGrUr4cgALhWYJS0252SSnE=
 github.com/corvus-ch/shamir v1.0.1/go.mod h1:1v3RBwJf+boj6ol/2QvtT1F1w5MZRZPbh5uys9ZoMnY=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
