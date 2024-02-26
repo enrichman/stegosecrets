@@ -1,9 +1,9 @@
 module github.com/enrichman/stegosecrets
 
-go 1.19
+go 1.22
 
 require (
-	github.com/auyer/steganography v1.0.1
+	github.com/auyer/steganography v1.0.2
 	github.com/corvus-ch/shamir v1.0.1
 	github.com/pkg/errors v0.9.1
 	github.com/schollz/progressbar/v3 v3.11.0

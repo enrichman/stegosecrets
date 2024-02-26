@@ -257,7 +257,7 @@ func (e *Encrypter) saveKeysIntoImages(parts []sss.Part, images []string) error 
 
 		// if the images are available hide the key inside them
 		if len(images) > 0 {
-			imageOutName := partialKeyFilename + filepath.Ext(images[i])
+			imageOutName := partialKeyFilename + ".png"
 
 			e.Logger.Debug(fmt.Sprintf("Writing partial key %03d into image", i+1))
 
