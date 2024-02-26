@@ -43,7 +43,7 @@ func WriteChecksum(logger log.Logger, content []byte, filename string) error {
 }
 
 func WriteKey(logger log.Logger, key []byte, filename string) error {
-	base64EncodedKey := base64.StdEncoding.EncodeToString(key)
+	base64EncodedKey := base64.RawURLEncoding.EncodeToString(key)
 
 	return WriteFile(logger, []byte(base64EncodedKey), filename+".key")
 }
@@ -92,7 +92,7 @@ func ReadKey(filename string) ([]byte, error) {
 		return nil, errors.Wrapf(err, "failed reading key file '%s'", filename)
 	}
 
-	decodedKey, err := base64.StdEncoding.DecodeString(string(encodedKey))
+	decodedKey, err := base64.RawURLEncoding.DecodeString(string(encodedKey))
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed decoding file '%s' from base64", filename)
 	}
