@@ -15,7 +15,7 @@ import (
 
 func TestEncodeSecretFromFile(t *testing.T) {
 	inJpeg, err := os.CreateTemp(os.TempDir(), "in.jpg")
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	defer os.Remove(filepath.Join(os.TempDir(), "in.jpg"))
 
@@ -23,10 +23,10 @@ func TestEncodeSecretFromFile(t *testing.T) {
 
 	var imageBuff bytes.Buffer
 	err = jpeg.Encode(&imageBuff, testImage, nil)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	_, err = inJpeg.Write(imageBuff.Bytes())
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	inJpeg.Close()
 	assert.FileExists(t, inJpeg.Name())
@@ -36,16 +36,16 @@ func TestEncodeSecretFromFile(t *testing.T) {
 
 	secret := []byte("test secret")
 	err = stegoimage.EncodeSecretFromFile(secret, inJpeg.Name(), outJpeg)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.FileExists(t, outJpeg)
 
 	defer os.Remove(filepath.Join(os.TempDir(), "out.jpg"))
 
 	outJpegFile, err := os.Open(outJpeg)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	decodedSecret, err := stegoimage.DecodeSecret(outJpegFile)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, secret, decodedSecret)
 }
 

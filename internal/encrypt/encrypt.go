@@ -137,7 +137,7 @@ func (e *Encrypter) generateAndSaveMasterKey(filename string) ([]byte, error) {
 		return nil, errors.Wrap(err, "failed generating master key")
 	}
 
-	encFilename := filepath.Join(e.OutputDir, fmt.Sprintf("%s.enc", filename))
+	encFilename := filepath.Join(e.OutputDir, filename+".enc")
 
 	err = file.WriteKey(e.Logger, masterKey, encFilename)
 	if err != nil {
@@ -163,7 +163,7 @@ func (e *Encrypter) encryptAndSaveMessage(masterKey []byte, reader io.Reader, fi
 		return errors.Wrap(err, "failed encrypting message")
 	}
 
-	encryptedFilename := filepath.Join(e.OutputDir, fmt.Sprintf("%s.enc", filename))
+	encryptedFilename := filepath.Join(e.OutputDir, filename+".enc")
 
 	err = file.WriteFile(e.Logger, encryptedMessage, encryptedFilename)
 	if err != nil {

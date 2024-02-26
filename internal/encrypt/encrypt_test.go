@@ -12,6 +12,7 @@ import (
 	"github.com/enrichman/stegosecrets/internal/encrypt"
 	"github.com/enrichman/stegosecrets/internal/log"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewEncrypter_WithPartsThreshold(t *testing.T) {
@@ -59,10 +60,10 @@ func TestNewEncrypter_WithPartsThreshold(t *testing.T) {
 			)
 
 			if tc.wantErr {
-				assert.NotNil(t, err)
+				require.Error(t, err)
 				assert.Nil(t, encrypter)
 			} else {
-				assert.Nil(t, err)
+				require.NoError(t, err)
 				assert.NotNil(t, encrypter)
 			}
 		})
@@ -73,20 +74,20 @@ func TestNewEncrypter_WithOutputDir(t *testing.T) {
 	// it should create the output dir
 	t.Run("non existing dir", func(t *testing.T) {
 		dir := filepath.Join(os.TempDir(), "non-existing-dir")
-		assert.Nil(t, os.RemoveAll(dir))
+		require.NoError(t, os.RemoveAll(dir))
 
 		_, err := os.Stat(dir)
-		assert.ErrorIs(t, err, fs.ErrNotExist)
+		require.ErrorIs(t, err, fs.ErrNotExist)
 
 		encrypter, err := encrypt.NewEncrypter(
 			encrypt.WithOutputDir(dir),
 		)
 
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, encrypter)
 
 		_, err = os.Stat(dir)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 	})
 }
 
@@ -98,18 +99,18 @@ func TestNewEncrypter_WithImagesDir(t *testing.T) {
 			encrypt.WithImagesDir(imagesDir),
 		)
 
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, encrypter)
 
 		absoluteImagesDir, err := filepath.Abs(imagesDir)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, absoluteImagesDir, encrypter.ImagesDir)
 	})
 }
 
 func TestEncrypt(t *testing.T) {
 	tmpDir, err := os.MkdirTemp(os.TempDir(), "out-*")
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.DirExists(t, tmpDir)
 
 	encrypter, err := encrypt.NewEncrypter(
@@ -118,10 +119,10 @@ func TestEncrypt(t *testing.T) {
 		encrypt.WithImagesDir("../../test/assets/p5t3"),
 		encrypt.WithLogger(log.NewSimpleLogger(io.Discard, log.None)),
 	)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	err = encrypter.Encrypt(strings.NewReader("hello world!"), "secret")
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	assert.DirExists(t, tmpDir)
 	assert.FileExists(t, tmpDir+"/secret.enc")
@@ -136,5 +137,5 @@ func TestEncrypt(t *testing.T) {
 	}
 
 	err = os.RemoveAll(tmpDir)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/enrichman/stegosecrets/internal/cli"
 	"github.com/enrichman/stegosecrets/pkg/file"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const testAssetsDir = "../../test/assets/p5t3/"
@@ -19,7 +20,7 @@ func TestDecryptCmd_NoInput(t *testing.T) {
 	rootCmd.SetArgs([]string{"decrypt"})
 
 	err := rootCmd.Execute()
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 }
 
 func TestDecryptCmd(t *testing.T) {
@@ -79,16 +80,16 @@ func TestDecryptCmd(t *testing.T) {
 
 			err := rootCmd.Execute()
 			if tc.wantExecuteErr {
-				assert.NotNil(t, err, outAndErr)
+				require.Error(t, err, outAndErr)
 			} else {
-				assert.Nil(t, err, outAndErr)
+				require.NoError(t, err, outAndErr)
 			}
 
 			err = file.Check(testAssetsDir+"secret", testAssetsDir+"secret.checksum")
 			if tc.wantCheckErr {
-				assert.NotNil(t, err, outAndErr)
+				require.Error(t, err, outAndErr)
 			} else {
-				assert.Nil(t, err, outAndErr)
+				require.NoError(t, err, outAndErr)
 			}
 		})
 	}

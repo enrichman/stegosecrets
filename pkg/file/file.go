@@ -3,6 +3,7 @@ package file
 import (
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -38,13 +39,13 @@ func WriteChecksum(logger log.Logger, content []byte, filename string) error {
 
 	checksum := fmt.Sprintf("%x\t%s", h.Sum(nil), filepath.Base(filename))
 
-	return WriteFile(logger, []byte(checksum), fmt.Sprintf("%s.checksum", filename))
+	return WriteFile(logger, []byte(checksum), filename+".checksum")
 }
 
 func WriteKey(logger log.Logger, key []byte, filename string) error {
 	base64EncodedKey := base64.StdEncoding.EncodeToString(key)
 
-	return WriteFile(logger, []byte(base64EncodedKey), fmt.Sprintf("%s.key", filename))
+	return WriteFile(logger, []byte(base64EncodedKey), filename+".key")
 }
 
 func WriteFile(logger log.Logger, content []byte, filename string) error {
@@ -118,7 +119,7 @@ func Check(filename, checksumFilename string) error {
 	}
 
 	checksumToVerify := strings.Split(string(checksumFileContent), "\t")[0]
-	checksumContent := fmt.Sprintf("%x", h.Sum(nil))
+	checksumContent := hex.EncodeToString(h.Sum(nil))
 
 	if checksumToVerify != checksumContent {
 		return errors.New("failed checksum verification")

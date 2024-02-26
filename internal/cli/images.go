@@ -41,7 +41,7 @@ var (
 	errInvalidNumOfImages = errors.New("number of images must be at least 1")
 )
 
-func runImagesCmd(cmd *cobra.Command, args []string) error {
+func runImagesCmd(_ *cobra.Command, _ []string) error {
 	if imagesNum == 0 {
 		return errInvalidNumOfImages
 	}
