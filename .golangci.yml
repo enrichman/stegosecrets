@@ -23,11 +23,6 @@ linters:
     - ifshort
     - golint
 
-    # warn for generics: https://github.com/golangci/golangci-lint/issues/2649
-    - rowserrcheck
-    - sqlclosecheck
-    - wastedassign
-
     # others
     - forbidigo
 
@@ -39,3 +34,4 @@ linters:
     - exhaustruct
     - godox
     - paralleltest
+    - depguard

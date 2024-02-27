@@ -8,6 +8,7 @@ import (
 
 	"github.com/enrichman/stegosecrets/internal/cli"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func setupTest(tb testing.TB) func(tb testing.TB) {
@@ -19,7 +20,7 @@ func setupTest(tb testing.TB) func(tb testing.TB) {
 		tb.Log("teardown test")
 
 		assert.DirExists(tb, "out")
-		assert.Nil(tb, os.RemoveAll("out"))
+		assert.NoError(tb, os.RemoveAll("out"))
 	}
 }
 
@@ -33,7 +34,7 @@ func TestEncryptCmd_NoInput(t *testing.T) {
 	assert.NoDirExists(t, "out")
 
 	err := rootCmd.Execute()
-	assert.NotNil(t, err)
+	require.Error(t, err)
 	assert.NoDirExists(t, "out")
 }
 
@@ -54,7 +55,7 @@ func TestEncryptCmd_Stdin(t *testing.T) {
 	assert.NoDirExists(t, "out")
 
 	err := rootCmd.Execute()
-	assert.Nil(t, err, outAndErr)
+	require.NoError(t, err, outAndErr)
 
 	assert.DirExists(t, "out")
 	assert.FileExists(t, "out/secret.enc")

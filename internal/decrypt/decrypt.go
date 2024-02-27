@@ -129,6 +129,7 @@ func (d *Decrypter) Decrypt(filename string) error {
 		key = d.MasterKey
 	} else {
 		d.Logger.Print("Decrypting with partial keys")
+
 		key, err = sss.Combine(d.Parts)
 		if err != nil {
 			return errors.Wrap(err, "failed combining parts")

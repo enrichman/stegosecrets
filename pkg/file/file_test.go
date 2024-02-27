@@ -1,7 +1,6 @@
 package file_test
 
 import (
-	"fmt"
 	"os"
 	"path"
 	"testing"
@@ -20,7 +19,7 @@ func Test_WriteFileChecksum(t *testing.T) {
 	err = file.WriteFileChecksum(nil, original)
 	require.NoError(t, err)
 
-	checksum, err := os.ReadFile(fmt.Sprintf("%s.checksum", original))
+	checksum, err := os.ReadFile(original + ".checksum")
 	require.NoError(t, err)
 
 	expectedChecksum := []byte("ed7002b439e9ac845f22357d822bac1444730fbdb6016d3ec9432297b9ec9f73\tfile")

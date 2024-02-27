@@ -30,7 +30,7 @@ If provided keys or images will be ignored`)
 	return decryptCmd
 }
 
-func runDecryptCmd(cmd *cobra.Command, args []string) error {
+func runDecryptCmd(cmd *cobra.Command, _ []string) error {
 	if encryptedFile == "" {
 		return errors.New("missing file to decrypt. Use -f/--file flag")
 	}

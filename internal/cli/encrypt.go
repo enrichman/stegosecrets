@@ -42,7 +42,7 @@ If empty no images will be generated.`)
 	return encryptCmd
 }
 
-func runEncryptCmd(cmd *cobra.Command, args []string) error {
+func runEncryptCmd(cmd *cobra.Command, _ []string) error {
 	if keyThreshold > keyParts {
 		return errors.Errorf("threshold %d cannot exceed the parts %d", keyThreshold, keyParts)
 	}
