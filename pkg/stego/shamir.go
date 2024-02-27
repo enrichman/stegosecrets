@@ -49,7 +49,7 @@ func (p Part) Bytes() []byte {
 }
 
 func (p Part) Base64() string {
-	return base64.StdEncoding.EncodeToString(p.Bytes())
+	return base64.RawURLEncoding.EncodeToString(p.Bytes())
 }
 
 func Split(secret []byte, parts, threshold uint8) ([]Part, error) {

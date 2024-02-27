@@ -112,7 +112,7 @@ func (e *Encrypter) Encrypt(reader io.Reader, filename string) error {
 		e.Logger.Print("No parts provided. Only the master-key will be generated.")
 	}
 
-	e.Logger.Debug("Generated master-key:", base64.StdEncoding.EncodeToString(masterKey))
+	e.Logger.Debug("Generated master-key:", base64.RawURLEncoding.EncodeToString(masterKey))
 
 	err = e.encryptAndSaveMessage(masterKey, reader, filename)
 	if err != nil {
