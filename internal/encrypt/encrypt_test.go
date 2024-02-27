@@ -131,8 +131,8 @@ func TestEncrypt(t *testing.T) {
 	assert.FileExists(t, tmpDir+"/secret.enc.checksum")
 
 	for i := 1; i <= 5; i++ {
-		assert.FileExists(t, fmt.Sprintf("%s/%03d.jpg", tmpDir, i))
-		assert.FileExists(t, fmt.Sprintf("%s/%03d.jpg.checksum", tmpDir, i))
+		assert.FileExists(t, fmt.Sprintf("%s/%03d.png", tmpDir, i))
+		assert.FileExists(t, fmt.Sprintf("%s/%03d.png.checksum", tmpDir, i))
 		assert.FileExists(t, fmt.Sprintf("%s/%03d.key", tmpDir, i))
 	}
 
